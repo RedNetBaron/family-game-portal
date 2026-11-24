@@ -36,7 +36,7 @@ export function Welcome({ invite }: { invite: string | null }) {
   return (
     <main className="welcome">
       <img className="hero-logo" src="/logo.png" alt="Game Master Red" width="220" height="220" />
-      <h1 className="title">Jones Family Games</h1>
+      <h1 className="title">Family Games</h1>
       <p className="tagline">Games and chat for the family.</p>
       <form className="card" onSubmit={submit}>
         <h2>{joining ? "You're invited! Pick a name" : 'Sign in'}</h2>

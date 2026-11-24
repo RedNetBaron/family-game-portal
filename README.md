@@ -1,4 +1,4 @@
-# Jones Family Games
+# Family Games
 
 A phone-friendly website where the family chats and plays games together.
 Built with React + Vite on Firebase (Hosting, Authentication, Firestore).
@@ -13,7 +13,7 @@ Built with React + Vite on Firebase (Hosting, Authentication, Firestore).
 1. In the Firebase console, open the project and add a **Web app**. Copy its config values into `.env.local` (see `.env.example`).
 2. **Authentication → Sign-in method:** turn on **Email/Password**. (Family members never see an email; names are turned into private sign-in addresses.)
 3. **Firestore Database:** create a database (production mode).
-4. **Firestore → Data:** add a collection `invites` with one document whose ID is your invite code (for example `jones-thanksgiving-2026`). Anyone with `/#/join/<that code>` can join. Delete the document to stop new joins.
+4. **Firestore → Data:** add a collection `invites` with one document whose ID is your invite code (for example `thanksgiving-2026`). Anyone with `/#/join/<that code>` can join. Delete the document to stop new joins.
 5. Deploy: `npx firebase login`, `npx firebase use <project-id>`, then `npm run deploy`.
 
 ## Local development

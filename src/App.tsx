@@ -37,7 +37,7 @@ export function App() {
       <header className="top">
         <span className="brand">
           <img src="/logo-badge.png" alt="" width="36" height="36" />
-          Jones Family Games
+          Family Games
         </span>
         <button className="link" onClick={signOutMember}>Sign out</button>
       </header>
