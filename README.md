@@ -9,12 +9,18 @@ Built with React + Vite on Firebase (Hosting, Authentication, Firestore).
 - One family group chat, updating live. You can delete your own messages.
 - A Games tab listing the games that are coming.
 
-## One-time Firebase setup
-1. In the Firebase console, open the project and add a **Web app**. Copy its config values into `.env.local` (see `.env.example`).
-2. **Authentication → Sign-in method:** turn on **Email/Password**. (Family members never see an email; names are turned into private sign-in addresses.)
-3. **Firestore Database:** create a database (production mode).
-4. **Firestore → Data:** add a collection `invites` with one document whose ID is your invite code (for example `thanksgiving-2026`). Anyone with `/#/join/<that code>` can join. Delete the document to stop new joins.
-5. Deploy: `npx firebase login`, `npx firebase use <project-id>`, then `npm run deploy`.
+## Live site
+https://family-games-portal.web.app
+
+Every push to `main` builds the site and deploys it, with the Firestore rules, through
+`.github/workflows/deploy.yml`. The workflow needs one repository secret,
+`FIREBASE_SERVICE_ACCOUNT`: the JSON key from Firebase console > Project settings >
+Service accounts > Generate new private key.
+
+## Invites
+Invite codes are documents in the Firestore `invites` collection. Anyone with
+`https://family-games-portal.web.app/#/join/<code>` can join. Delete the document to stop new joins,
+or add another document for a new code.
 
 ## Local development
 ```
