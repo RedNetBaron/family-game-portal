@@ -3,7 +3,8 @@ import { joinInProgress, signOutMember } from './lib/account';
 import { useHash } from './lib/useHash';
 import { useMember } from './lib/useMember';
 import { Chat } from './pages/Chat';
-import { LetterGridGame } from './games/letterGrid/LetterGridGame';
+import { CategoryDashSetup } from './games/categoryDash/CategoryDashSetup';
+import { GameScreen } from './games/GameScreen';
 import { LetterGridSetup } from './games/letterGrid/LetterGridSetup';
 import { Games } from './pages/Games';
 import { Welcome } from './pages/Welcome';
@@ -47,7 +48,9 @@ export function App() {
       </header>
       <div className="content">
         {gameId ? (
-          <LetterGridGame key={gameId} gameId={gameId} member={state.member} />
+          <GameScreen key={gameId} gameId={gameId} member={state.member} />
+        ) : hash === '#/games/category-dash' ? (
+          <CategoryDashSetup member={state.member} />
         ) : hash === '#/games/letter-grid' ? (
           <LetterGridSetup member={state.member} />
         ) : tab === 'chat' ? (

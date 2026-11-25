@@ -4,7 +4,11 @@ const games = [
     blurb: 'Find words in a grid of letters before time runs out.',
     href: '#/games/letter-grid',
   },
-  { name: 'Category Dash', blurb: 'One letter, a list of categories. Fill them in fast.', href: null },
+  {
+    name: 'Category Dash',
+    blurb: 'One letter, a list of categories. Fill them in fast.',
+    href: '#/games/category-dash',
+  },
   { name: 'Family Trivia', blurb: 'Multiple-choice questions with a family scoreboard.', href: null },
 ];
 
