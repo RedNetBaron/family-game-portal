@@ -5,6 +5,10 @@
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
+// Network pass-through. Having a fetch handler keeps every browser's
+// "install app" option available; nothing is cached.
+self.addEventListener('fetch', () => {});
+
 self.addEventListener('push', (event) => {
   let payload = {};
   try {

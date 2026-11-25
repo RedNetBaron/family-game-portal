@@ -1,3 +1,4 @@
+import { InstallButton } from './InstallButton';
 import { NotifyCard } from './NotifyCard';
 import type { Waiting } from '../lib/useWaiting';
 import { GAME_NAMES } from '../lib/useWaiting';
@@ -41,6 +42,7 @@ export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
           </ul>
         </div>
       )}
+      <InstallButton />
       <NotifyCard uid={uid} />
       <h2 className="menu-title">Pick a game</h2>
       <ul className="game-menu">
