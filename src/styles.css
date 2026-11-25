@@ -379,7 +379,8 @@ a.menu-item:active { background: var(--surface-2); }
 .tabs { grid-template-columns: 1fr 1fr 1fr; }
 
 /* Daily Word */
-.dw { display: flex; flex-direction: column; gap: 0.9rem; padding: 0 16px 1rem; }
+.dw { display: flex; flex-direction: column; gap: 0.9rem; padding: 0.6rem 16px 0; overflow-y: auto; min-height: 0; flex: 1; }
+.dw > * { flex-shrink: 0; }
 .center-text { text-align: center; margin: 0; }
 .dw-grid { display: grid; gap: 6px; justify-content: center; }
 .dw-row { display: grid; grid-template-columns: repeat(5, clamp(34px, min(15vw, calc((100dvh - 400px) / 6.4)), 58px)); gap: 6px; }
@@ -439,7 +440,9 @@ a.menu-item:active { background: var(--surface-2); }
 .dw-mini { white-space: pre; font-size: 0.55rem; line-height: 1.05; }
 
 /* Scores */
-.scores { padding: 0 16px 1rem; display: flex; flex-direction: column; gap: 0.9rem; }
+.scores { padding: 1rem 16px 1.5rem; display: flex; flex-direction: column; gap: 0.9rem; overflow-y: auto; min-height: 0; flex: 1; }
+.scores > * { flex-shrink: 0; }
+.scores .menu-title { margin: 0; }
 .scores .card h3 { margin-top: 0; }
 .chips.small .chip { font-size: 0.85rem; padding: 0.35rem 0.7rem; }
 .plain-list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; }
@@ -531,3 +534,5 @@ button.brand { background: none; border: none; padding: 0; font: inherit; font-w
   touch-action: manipulation;
 }
 .chip-react.on { border-color: var(--gold); background: rgba(245, 181, 68, 0.18); }
+
+.tabs a { white-space: nowrap; padding-left: 4px; padding-right: 4px; }
