@@ -14,7 +14,14 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { db } from '../lib/firebase';
 import type { Member } from '../lib/useMember';
 
-type Message = { id: string; uid: string; name: string; text: string; createdAt: Timestamp | null };
+type Message = {
+  id: string;
+  uid: string;
+  name: string;
+  text: string;
+  gameId?: string;
+  createdAt: Timestamp | null;
+};
 
 function timeLabel(ts: Timestamp | null): string {
   if (!ts) return 'sending…';
@@ -80,7 +87,14 @@ export function Chat({ member }: { member: Member }) {
           return (
             <li key={m.id} className={mine ? 'msg mine' : 'msg'}>
               {!mine && <span className="who">{m.name}</span>}
-              <span className="bubble">{m.text}</span>
+              {m.gameId ? (
+                <span className="bubble game-bubble">
+                  🎲 {mine ? 'You' : m.name} {m.text}
+                  <a className="primary small" href={`#/game/${m.gameId}`}>Open game</a>
+                </span>
+              ) : (
+                <span className="bubble">{m.text}</span>
+              )}
               <span className="meta">
                 {timeLabel(m.createdAt)}
                 {mine && (

@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { joinInProgress, signOutMember } from './lib/account';
 import { useHash } from './lib/useHash';
 import { useMember } from './lib/useMember';
 import { Chat } from './pages/Chat';
+import { LetterGridGame } from './games/letterGrid/LetterGridGame';
 import { Games } from './pages/Games';
 import { Welcome } from './pages/Welcome';
 
 export function App() {
   const state = useMember();
   const hash = useHash();
-  const [tab, setTab] = useState<'chat' | 'games'>('chat');
   const invite = hash.match(/^#\/join\/([A-Za-z0-9_-]{4,64})$/)?.[1] ?? null;
 
   // A signed-in account that isn't a family member (outside of a join in
@@ -32,6 +32,9 @@ export function App() {
     return <main className="center">Loading…</main>;
   }
 
+  const gameId = hash.match(/^#\/game\/([A-Za-z0-9]+)$/)?.[1] ?? null;
+  const tab = gameId || hash === '#/games' ? 'games' : 'chat';
+
   return (
     <div className="shell">
       <header className="top">
@@ -42,15 +45,21 @@ export function App() {
         <button className="link" onClick={signOutMember}>Sign out</button>
       </header>
       <div className="content">
-        {tab === 'chat' ? <Chat member={state.member} /> : <Games />}
+        {gameId ? (
+          <LetterGridGame key={gameId} gameId={gameId} member={state.member} />
+        ) : tab === 'chat' ? (
+          <Chat member={state.member} />
+        ) : (
+          <Games member={state.member} />
+        )}
       </div>
       <nav className="tabs">
-        <button className={tab === 'chat' ? 'active' : ''} onClick={() => setTab('chat')}>
+        <a className={tab === 'chat' ? 'active' : ''} href="#/chat">
           Chat
-        </button>
-        <button className={tab === 'games' ? 'active' : ''} onClick={() => setTab('games')}>
+        </a>
+        <a className={tab === 'games' ? 'active' : ''} href="#/games">
           Games
-        </button>
+        </a>
       </nav>
     </div>
   );

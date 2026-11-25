@@ -41,7 +41,8 @@ service cloud.firestore {
     match /messages/{id} {
       allow read: if isMember();
       allow create: if isMember()
-        && request.resource.data.keys().hasOnly(['uid', 'name', 'text', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'text', 'createdAt', 'gameId'])
+        && (!('gameId' in request.resource.data) || request.resource.data.gameId is string)
         && request.resource.data.uid == request.auth.uid
         && validName(request.resource.data.name)
         && request.resource.data.text is string
@@ -50,6 +51,59 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow delete: if isMember() && resource.data.uid == request.auth.uid;
       allow update: if false;
+    }
+
+    // Games. Any member can start one; the creator controls the start of a live game.
+    match /games/{gameId} {
+      allow read: if isMember();
+      allow create: if isMember()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.type == 'letterGrid'
+        && request.resource.data.mode in ['live', 'turns']
+        && request.resource.data.grid is list
+        && request.resource.data.grid.size() == 16
+        && request.resource.data.createdAt == request.time;
+      // Members may add themselves to the player list.
+      allow update: if isMember() && (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players'])
+          && request.resource.data.players.diff(resource.data.players).affectedKeys()
+               .hasOnly([request.auth.uid])
+          && request.resource.data.players[request.auth.uid] is string)
+        || (resource.data.createdBy == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'startAt', 'endsAt'])));
+      allow delete: if isMember() && resource.data.createdBy == request.auth.uid;
+
+      function mySubmitted() {
+        let mine = /databases/$(database)/documents/games/$(gameId)/plays/$(request.auth.uid);
+        return exists(mine) && get(mine).data.submittedAt != null;
+      }
+
+      function gameOver() {
+        let g = get(/databases/$(database)/documents/games/$(gameId)).data;
+        return g.endsAt != null && g.endsAt < request.time;
+      }
+
+      // Each player's words. You can see other players' words only after you've
+      // finished your own round, or once the game is over.
+      match /plays/{uid} {
+        allow read: if isMember() && (uid == request.auth.uid || mySubmitted() || gameOver());
+        allow create: if isMember()
+          && uid == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid', 'name', 'words', 'startedAt', 'submittedAt'])
+          && request.resource.data.uid == uid
+          && request.resource.data.words.size() == 0
+          && request.resource.data.startedAt == request.time
+          && request.resource.data.submittedAt == null;
+        allow update: if isMember()
+          && uid == request.auth.uid
+          && resource.data.submittedAt == null
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['words', 'submittedAt'])
+          && request.resource.data.words is list
+          && request.resource.data.words.size() <= 500
+          && (request.resource.data.submittedAt == null || request.resource.data.submittedAt == request.time);
+        allow delete: if false;
+      }
     }
   }
 }

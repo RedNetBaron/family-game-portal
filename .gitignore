@@ -4,3 +4,4 @@ dist
 .firebase
 *.log
 firebase-debug.*
+*.tsbuildinfo
