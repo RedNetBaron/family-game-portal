@@ -20,14 +20,16 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: npm ci --prefix functions
+      - run: npm test --prefix functions
       - name: Write service account key
         env:
           SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
-      - name: Deploy hosting and Firestore rules
+      - name: Deploy hosting, Firestore rules and functions
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
-        run: npx firebase deploy --only hosting,firestore:rules --project family-games-portal --non-interactive
+        run: npx firebase deploy --only hosting,firestore:rules,functions --force --project family-games-portal --non-interactive
       - name: Remove key
         if: always()
         run: rm -f "$RUNNER_TEMP/sa.json"
