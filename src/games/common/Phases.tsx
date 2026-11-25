@@ -1,5 +1,6 @@
-import { collection, doc, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { useEffect, useState, type ReactNode } from 'react';
+import { collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { familyDay, placements } from '../../../functions/shared/scoring.js';
 import { db } from '../../lib/firebase';
 import { useNow } from '../../lib/useNow';
 import type { Member } from '../../lib/useMember';
@@ -275,3 +276,39 @@ export function TurnIntro({ game, member, children }: { game: BaseGame; member: 
   );
 }
 
+
+/**
+ * Records a finished game's placements for the monthly scoreboard.
+ * Runs for whoever is looking at the final results; everyone computes the same thing.
+ */
+export function useRecordResult(game: BaseGame, over: boolean, rows: { uid: string; name: string; score: number }[]) {
+  const last = useRef('');
+  const [retry, setRetry] = useState(0);
+  const key = over && rows.length ? JSON.stringify(rows.map((r) => [r.uid, r.score])) : '';
+  useEffect(() => {
+    if (!key || key === last.current) return;
+    const ends = ms(game.endsAt);
+    if (!ends) return;
+    last.current = key;
+    const day = familyDay(ends);
+    setDoc(doc(db, 'results', game.id), {
+      type: game.type,
+      mode: game.mode,
+      month: day.slice(0, 7),
+      day,
+      placements: placements(rows),
+      players: rows.length,
+      updatedAt: serverTimestamp(),
+    }).catch(() => {
+      // Usually the live game isn't marked done yet; try again shortly.
+      last.current = '';
+      if (retry < 10) setTimeout(() => setRetry((r) => r + 1), 3000);
+    });
+  }, [key, game, retry]);
+}
+
+/** Component form of useRecordResult, so it can sit in JSX after early returns. */
+export function RecordResult({ game, over, rows }: { game: BaseGame; over: boolean; rows: { uid: string; name: string; score: number }[] }) {
+  useRecordResult(game, over, rows);
+  return null;
+}

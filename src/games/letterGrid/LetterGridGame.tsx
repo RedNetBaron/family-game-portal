@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNow } from '../../lib/useNow';
 import type { Member } from '../../lib/useMember';
-import { CloseEarly, Countdown, Lobby, ms, TurnIntro, useGame, useMyPlay, usePlays } from '../common/Phases';
+import { CloseEarly, Countdown, Lobby, ms, TurnIntro, useGame, useMyPlay, usePlays, RecordResult } from '../common/Phases';
 import { beginPlay, markDone, saveWords, submitPlay, type Game, type Play } from './api';
 import { Board } from './Board';
 import { formatDuration, scoreRound, sizeOf, solve, wordPoints } from './logic';
@@ -145,12 +145,15 @@ function Results({ game, member, dict }: { game: Game; member: Member; dict: Dic
   const missed = possible.filter((w) => !foundByAnyone.has(w));
 
   // The host marks a finished live game as done so the games list shows it as finished.
+  const record = <RecordResult game={game} over={final} rows={results.map((r) => ({ uid: r.uid, name: r.name, score: r.score }))} />;
+
   if (final && game.mode === 'live' && game.status === 'started' && game.createdBy === member.uid) {
     markDone(game.id);
   }
 
   return (
     <div className="lg-results">
+      {record}
       <div className="card">
         <h3>{final ? 'Final results' : 'Standings so far'}</h3>
         {!final && (

@@ -1,4 +1,5 @@
-import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { collection, doc, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { familyDay } from '../../functions/shared/scoring.js';
 import { useEffect, useState } from 'react';
 import type { BaseGame } from '../games/common/api';
 import { db } from './firebase';
@@ -8,12 +9,13 @@ export const GAME_NAMES: Record<string, string> = {
   letterGrid: 'Letter Grid',
   categoryDash: 'Category Dash',
   trivia: 'Family Trivia',
+  dailyWord: 'Daily Word',
 };
 
 /** A live lobby older than this is treated as abandoned. */
 const LOBBY_MINUTES = 30;
 
-export type Waiting = { game: BaseGame; kind: 'turn' | 'lobby'; hoursLeft: number };
+export type Waiting = { game: BaseGame; kind: 'turn' | 'lobby' | 'daily'; hoursLeft: number };
 
 const ms = (t: { toMillis(): number } | null | undefined) => (t ? t.toMillis() : null);
 
@@ -45,7 +47,20 @@ export function useWaiting(uid: string): Waiting[] {
       () => undefined,
     );
   }, []);
+  const day = familyDay(now);
+  const [dailyDone, setDailyDone] = useState<boolean | null>(null);
+  useEffect(() => {
+    setDailyDone(null);
+    return onSnapshot(doc(db, 'dailyScores', `${day}_${uid}`), (s) => setDailyDone(s.exists()), () => setDailyDone(null));
+  }, [day, uid]);
   const waiting = waitingFor(games, uid, now);
+  if (dailyDone === false) {
+    waiting.push({
+      game: { id: `daily-${day}`, type: 'dailyWord', createdByName: 'today', mode: 'turns' } as BaseGame,
+      kind: 'daily',
+      hoursLeft: 0,
+    });
+  }
 
   // Show the count on the browser tab and, when installed to the home screen, on the app icon.
   const count = waiting.length;

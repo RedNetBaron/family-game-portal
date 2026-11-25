@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNow } from '../../lib/useNow';
 import type { Member } from '../../lib/useMember';
 import { beginPlay, markDone, saveWords, submitPlay, type Play } from '../common/api';
-import { CloseEarly, Countdown, Lobby, ms, TurnIntro, useGame, useMyPlay, usePlays } from '../common/Phases';
+import { CloseEarly, Countdown, Lobby, ms, TurnIntro, useGame, useMyPlay, usePlays, RecordResult } from '../common/Phases';
 import { formatDuration } from '../letterGrid/logic';
 import { saveMyVotes, useVotes, type CategoryGame } from './api';
 import { AnswerSheet } from './AnswerSheet';
@@ -143,6 +143,8 @@ function Results({ game, member }: { game: CategoryGame; member: Member }) {
     allVotes,
   );
 
+  const record = <RecordResult game={game} over={final} rows={standings.map((r) => ({ uid: r.uid, name: r.name, score: r.score }))} />;
+
   if (final && game.mode === 'live' && game.status === 'started' && game.createdBy === member.uid) {
     markDone(game.id);
   }
@@ -159,6 +161,7 @@ function Results({ game, member }: { game: CategoryGame; member: Member }) {
 
   return (
     <div className="lg-results">
+      {record}
       <div className="card">
         <div className="cd-result-head">
           <div className="cd-letter small">{game.letter}</div>

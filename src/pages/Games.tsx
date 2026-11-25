@@ -5,6 +5,11 @@ import { GAME_NAMES } from '../lib/useWaiting';
 
 const games: { name: string; blurb: string; href: string | null }[] = [
   {
+    name: 'Daily Word',
+    blurb: 'One mystery word a day for the whole family. Six guesses.',
+    href: '#/games/daily-word',
+  },
+  {
     name: 'Letter Grid',
     blurb: 'Find words in a grid of letters before time runs out.',
     href: '#/games/letter-grid',
@@ -30,12 +35,12 @@ export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
           <ul className="game-list">
             {waiting.map(({ game, kind, hoursLeft }) => (
               <li key={game.id}>
-                <a href={`#/game/${game.id}`}>
+                <a href={kind === 'daily' ? '#/games/daily-word' : `#/game/${game.id}`}>
                   <span>
                     {GAME_NAMES[game.type] ?? 'Game'}
-                    <small> by {game.createdByName}</small>
+                    <small>{kind === 'daily' ? ' · today' : ` by ${game.createdByName}`}</small>
                   </span>
-                  <span className="badge hot">{kind === 'lobby' ? 'Live now · join' : `Your turn · ${hoursLeft}h left`}</span>
+                  <span className="badge hot">{kind === 'lobby' ? 'Live now · join' : kind === 'daily' ? 'Not played yet' : `Your turn · ${hoursLeft}h left`}</span>
                 </a>
               </li>
             ))}

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useNow } from '../../lib/useNow';
 import type { Member } from '../../lib/useMember';
 import { beginPlay, markDone, saveWords, submitPlay, type Play } from '../common/api';
-import { CloseEarly, Countdown, Lobby, ms, TurnIntro, useGame, useMyPlay, usePlays } from '../common/Phases';
+import { CloseEarly, Countdown, Lobby, ms, TurnIntro, useGame, useMyPlay, usePlays, RecordResult } from '../common/Phases';
 import type { TriviaGame as Game } from './api';
 import { answerPoints, decodeAnswer, scoreTrivia } from './logic';
 import { QuizRunner } from './QuizRunner';
@@ -122,12 +122,15 @@ function Results({ game, member }: { game: Game; member: Member }) {
     done.map((p) => ({ uid: p.uid, name: p.name, answers: p.words })),
   );
 
+  const record = <RecordResult game={game} over={final} rows={standings.map((r) => ({ uid: r.uid, name: r.name, score: r.score }))} />;
+
   if (final && game.mode === 'live' && game.status === 'started' && game.createdBy === member.uid) {
     markDone(game.id);
   }
 
   return (
     <div className="lg-results">
+      {record}
       <div className="card">
         <h3>{final ? 'Final results' : 'Standings so far'}</h3>
         {!final && (

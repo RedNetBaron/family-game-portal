@@ -9,6 +9,8 @@ import { GameScreen } from './games/GameScreen';
 import { TriviaSetup } from './games/trivia/TriviaSetup';
 import { LetterGridSetup } from './games/letterGrid/LetterGridSetup';
 import { Games } from './pages/Games';
+import { Scores } from './pages/Scores';
+import { DailyWord } from './games/dailyWord/DailyWord';
 import { Welcome } from './pages/Welcome';
 
 export function App() {
@@ -42,7 +44,7 @@ export function App() {
 function Shell({ member, hash }: { member: Member; hash: string }) {
   const waiting = useWaiting(member.uid);
   const gameId = hash.match(/^#\/game\/([A-Za-z0-9]+)$/)?.[1] ?? null;
-  const tab = gameId || hash.startsWith('#/games') ? 'games' : 'chat';
+  const tab = gameId || hash.startsWith('#/games') ? 'games' : hash.startsWith('#/scores') ? 'scores' : 'chat';
 
   return (
     <div className="shell">
@@ -56,6 +58,10 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
       <div className="content">
         {gameId ? (
           <GameScreen key={gameId} gameId={gameId} member={member} />
+        ) : hash === '#/games/daily-word' ? (
+          <DailyWord member={member} />
+        ) : tab === 'scores' ? (
+          <Scores member={member} />
         ) : hash === '#/games/trivia' ? (
           <TriviaSetup member={member} />
         ) : hash === '#/games/category-dash' ? (
@@ -75,6 +81,9 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
         <a className={tab === 'games' ? 'active' : ''} href="#/games">
           Games
           {waiting.length > 0 && <span className="tab-count" aria-label={`${waiting.length} waiting on you`}>{waiting.length}</span>}
+        </a>
+        <a className={tab === 'scores' ? 'active' : ''} href="#/scores">
+          Scores
         </a>
       </nav>
     </div>

@@ -32,6 +32,44 @@ service cloud.firestore {
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
     }
 
+    // Finished-game placements for the monthly scoreboard. Any family member
+    // viewing the final results records them (everyone computes the same thing);
+    // updates are allowed for 3 days so late Category Dash votes count.
+    match /results/{gameId} {
+      allow read: if isMember();
+      allow create, update: if isMember()
+        && exists(/databases/$(database)/documents/games/$(gameId))
+        && (get(/databases/$(database)/documents/games/$(gameId)).data.endsAt < request.time
+            || get(/databases/$(database)/documents/games/$(gameId)).data.status == 'done')
+        && request.time < get(/databases/$(database)/documents/games/$(gameId)).data.endsAt + duration.value(3, 'd')
+        && request.resource.data.keys().hasOnly(['type', 'mode', 'month', 'day', 'placements', 'players', 'updatedAt'])
+        && request.resource.data.type == get(/databases/$(database)/documents/games/$(gameId)).data.type
+        && request.resource.data.month is string && request.resource.data.month.size() == 7
+        && request.resource.data.day is string && request.resource.data.day.size() == 10
+        && request.resource.data.placements is map
+        && request.resource.data.placements.size() <= 30
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    // Daily Word: the server (Cloud Functions) writes these. Secrets are never readable;
+    // your own guesses are readable by you; everyone's daily scores are readable.
+    match /dailySecrets/{day} {
+      allow read, write: if false;
+    }
+    match /dailyPlays/{id} {
+      allow read: if isMember() && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+    match /dailyScores/{id} {
+      allow read: if isMember();
+      allow write: if false;
+    }
+    match /champions/{month} {
+      allow read: if isMember();
+      allow write: if false;
+    }
+
     // One document per family member, keyed by their sign-in id.
     match /members/{uid} {
       allow read: if isMember() || (signedIn() && request.auth.uid == uid);

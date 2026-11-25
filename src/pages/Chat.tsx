@@ -13,6 +13,7 @@ import {
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { db } from '../lib/firebase';
 import type { Member } from '../lib/useMember';
+import { useChampions } from './Scores';
 
 type Message = {
   id: string;
@@ -38,6 +39,7 @@ export function Chat({ member }: { member: Member }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
+  const champ = useChampions()[0];
   const bottom = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -86,7 +88,7 @@ export function Chat({ member }: { member: Member }) {
           const mine = m.uid === member.uid;
           return (
             <li key={m.id} className={mine ? 'msg mine' : 'msg'}>
-              {!mine && <span className="who">{m.name}</span>}
+              {!mine && <span className="who">{m.name}{champ?.uid === m.uid ? ' 🏆' : ''}</span>}
               {m.gameId ? (
                 <span className="bubble game-bubble">
                   🎲 {mine ? 'You' : m.name} {m.text}
