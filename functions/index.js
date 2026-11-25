@@ -8,7 +8,7 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { createRequire } from 'node:module';
 import { cleanGuess, markGuess, MAX_GUESSES, WORD_LENGTH } from './shared/dailyword.js';
 import { dailyWordPoints, familyDay, familyMonth, monthName, previousDay, previousMonth, standings } from './shared/scoring.js';
-import { DEAD_TOKEN_CODES, dueForReminder, newGameMessage, recipients, reminderMessage, REMIND_HOURS_BEFORE } from './notify.js';
+import { DEAD_TOKEN_CODES, dueForReminder, mentionMessage, newGameMessage, recipients, reminderMessage, REMIND_HOURS_BEFORE } from './notify.js';
 
 initializeApp();
 // Small family app: keep it to one instance so it can never fan out cost.
@@ -147,3 +147,14 @@ async function crown(month) {
   await send(recipients(await allTokens(), new Set()), { title: `${monthName(month)} champion: ${top[0].name}`, body: 'See the final standings in the Scores tab.', link: '/#/scores', tag: `champ-${month}` });
   return top;
 }
+
+/** Chat @mentions: ping the tagged people (or the whole family for @everyone). */
+export const notifyMention = onDocumentCreated('messages/{id}', async (event) => {
+  const msg = event.data?.data();
+  if (!msg) return;
+  const push = mentionMessage(msg);
+  if (!push) return;
+  const tokens = (await allTokens()).filter((t) => t.uid !== msg.uid && (push.everyone || push.uids.includes(t.uid)));
+  const sent = await send(tokens.map((t) => t.token), push);
+  console.log(`mention in ${event.params.id}: ${sent} sent`);
+});

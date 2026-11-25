@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { dueForReminder, newGameMessage, recipients, reminderMessage } from './notify.js';
+import { dueForReminder, mentionMessage, newGameMessage, recipients, reminderMessage } from './notify.js';
 
 test('live game message', () => {
   const m = newGameMessage('g1', { type: 'trivia', mode: 'live', createdByName: 'Anna' });
@@ -36,4 +36,12 @@ test('reminder window', () => {
   assert.equal(dueForReminder({ mode: 'turns', endsAtMs: 4 * h }, now, h), false);
   assert.equal(dueForReminder({ mode: 'turns', endsAtMs: 2 * h }, now, h), false);
   assert.equal(dueForReminder({ mode: 'live', endsAtMs: 3 * h + 10 }, now, h), false);
+});
+
+test('mention message', () => {
+  assert.equal(mentionMessage({ name: 'Brian', text: 'hi', mentions: [] }), null);
+  const m = mentionMessage({ name: 'Brian', text: '@Anna trivia at 8?', mentions: ['a1'] });
+  assert.equal(m.title, 'Brian mentioned you');
+  assert.deepEqual(m.uids, ['a1']);
+  assert.equal(mentionMessage({ name: 'Brian', text: '@everyone', mentions: ['everyone'] }).everyone, true);
 });

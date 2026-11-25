@@ -55,3 +55,19 @@ export const DEAD_TOKEN_CODES = new Set([
   'messaging/invalid-registration-token',
   'messaging/invalid-argument',
 ]);
+
+/** Push for a chat message that tags people. Returns null when nobody is tagged. */
+export function mentionMessage(msg) {
+  const tags = Array.isArray(msg.mentions) ? msg.mentions : [];
+  if (!tags.length) return null;
+  const body = String(msg.text || '').slice(0, 140);
+  const everyone = tags.includes('everyone');
+  return {
+    title: everyone ? `${msg.name} to everyone` : `${msg.name} mentioned you`,
+    body,
+    link: '/#/chat',
+    tag: 'chat',
+    everyone,
+    uids: tags.filter((t) => t !== 'everyone'),
+  };
+}

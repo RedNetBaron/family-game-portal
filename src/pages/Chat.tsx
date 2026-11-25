@@ -14,6 +14,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { db } from '../lib/firebase';
 import type { Member } from '../lib/useMember';
 import { useChampions } from './Scores';
+import { EVERYONE, findMentions, insertMention, mentionQuery, splitMentions, suggestions, type Person } from '../lib/mentions';
 
 type Message = {
   id: string;
@@ -21,6 +22,7 @@ type Message = {
   name: string;
   text: string;
   gameId?: string;
+  mentions?: string[];
   createdAt: Timestamp | null;
 };
 
@@ -41,6 +43,26 @@ export function Chat({ member }: { member: Member }) {
   const [error, setError] = useState('');
   const champ = useChampions()[0];
   const bottom = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const [people, setPeople] = useState<Person[]>([]);
+
+  useEffect(
+    () =>
+      onSnapshot(
+        collection(db, 'members'),
+        (snap) => setPeople(snap.docs.map((d) => ({ uid: d.id, name: d.get('name') as string })).filter((p) => p.name)),
+        () => undefined,
+      ),
+    [],
+  );
+
+  const q = mentionQuery(text);
+  const picks = q === null ? [] : suggestions(people, q, member.uid);
+
+  function pick(name: string) {
+    setText((t) => insertMention(t, name));
+    input.current?.focus();
+  }
 
   useEffect(() => {
     const q = query(collection(db, 'messages'), orderBy('createdAt'), limitToLast(200));
@@ -67,10 +89,12 @@ export function Chat({ member }: { member: Member }) {
     if (!body) return;
     setText('');
     try {
+      const mentions = findMentions(body, people).filter((u) => u !== member.uid);
       await addDoc(collection(db, 'messages'), {
         uid: member.uid,
         name: member.name,
         text: body.slice(0, 1000),
+        ...(mentions.length ? { mentions } : {}),
         createdAt: serverTimestamp(),
       });
       setError('');
@@ -86,8 +110,9 @@ export function Chat({ member }: { member: Member }) {
         {messages.length === 0 && <li className="empty">No messages yet. Say hi!</li>}
         {messages.map((m) => {
           const mine = m.uid === member.uid;
+          const tagged = !mine && !!m.mentions && (m.mentions.includes(member.uid) || m.mentions.includes(EVERYONE));
           return (
-            <li key={m.id} className={mine ? 'msg mine' : 'msg'}>
+            <li key={m.id} className={`msg${mine ? ' mine' : ''}${tagged ? ' tagged' : ''}`}>
               {!mine && <span className="who">{m.name}{champ?.uid === m.uid ? ' 🏆' : ''}</span>}
               {m.gameId ? (
                 <span className="bubble game-bubble">
@@ -95,7 +120,17 @@ export function Chat({ member }: { member: Member }) {
                   <a className="primary small" href={`#/game/${m.gameId}`}>Open game</a>
                 </span>
               ) : (
-                <span className="bubble">{m.text}</span>
+                <span className="bubble">
+                  {splitMentions(m.text, people).map((part, i) =>
+                    part.uid ? (
+                      <span key={i} className={part.uid === member.uid || part.uid === EVERYONE ? 'mention me' : 'mention'}>
+                        {part.text}
+                      </span>
+                    ) : (
+                      part.text
+                    ),
+                  )}
+                </span>
               )}
               <span className="meta">
                 {timeLabel(m.createdAt)}
@@ -115,11 +150,24 @@ export function Chat({ member }: { member: Member }) {
         <div ref={bottom} />
       </ol>
       {error && <p className="error" role="alert">{error}</p>}
+      {picks.length > 0 && (
+        <ul className="mention-picks" role="listbox" aria-label="Tag someone">
+          {picks.map((p) => (
+            <li key={p.uid}>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pick(p.name)}>
+                @{p.name}
+                {p.uid === EVERYONE && <small className="hint"> notify the whole family</small>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       <form className="composer" onSubmit={send}>
         <input
+          ref={input}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Message the family"
+          placeholder="Message (type @ to tag)"
           maxLength={1000}
           enterKeyHint="send"
         />
