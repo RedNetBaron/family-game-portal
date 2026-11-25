@@ -1,4 +1,4 @@
-const games = [
+const games: { name: string; blurb: string; href: string | null }[] = [
   {
     name: 'Letter Grid',
     blurb: 'Find words in a grid of letters before time runs out.',
@@ -9,7 +9,11 @@ const games = [
     blurb: 'One letter, a list of categories. Fill them in fast.',
     href: '#/games/category-dash',
   },
-  { name: 'Family Trivia', blurb: 'Multiple-choice questions with a family scoreboard.', href: null },
+  {
+    name: 'Family Trivia',
+    blurb: 'Multiple-choice questions with a family scoreboard.',
+    href: '#/games/trivia',
+  },
 ];
 
 export function Games() {

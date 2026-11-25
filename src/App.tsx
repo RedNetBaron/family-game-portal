@@ -5,6 +5,7 @@ import { useMember } from './lib/useMember';
 import { Chat } from './pages/Chat';
 import { CategoryDashSetup } from './games/categoryDash/CategoryDashSetup';
 import { GameScreen } from './games/GameScreen';
+import { TriviaSetup } from './games/trivia/TriviaSetup';
 import { LetterGridSetup } from './games/letterGrid/LetterGridSetup';
 import { Games } from './pages/Games';
 import { Welcome } from './pages/Welcome';
@@ -49,6 +50,8 @@ export function App() {
       <div className="content">
         {gameId ? (
           <GameScreen key={gameId} gameId={gameId} member={state.member} />
+        ) : hash === '#/games/trivia' ? (
+          <TriviaSetup member={state.member} />
         ) : hash === '#/games/category-dash' ? (
           <CategoryDashSetup member={state.member} />
         ) : hash === '#/games/letter-grid' ? (

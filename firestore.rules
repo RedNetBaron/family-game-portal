@@ -69,6 +69,16 @@ service cloud.firestore {
         && d.categories.size() <= 12;
     }
 
+    function validTrivia(d) {
+      return d.type == 'trivia'
+        && d.perQuestion is int
+        && d.perQuestion >= 5
+        && d.perQuestion <= 60
+        && d.questions is list
+        && d.questions.size() >= 1
+        && d.questions.size() <= 20;
+    }
+
     // Games. Any member can start one; the creator controls the start of a live game.
     match /games/{gameId} {
       allow read: if isMember();
@@ -77,9 +87,11 @@ service cloud.firestore {
         && request.resource.data.mode in ['live', 'turns']
         && request.resource.data.seconds is int
         && request.resource.data.seconds >= 30
-        && request.resource.data.seconds <= 900
+        && request.resource.data.seconds <= 1800
         && request.resource.data.createdAt == request.time
-        && (validLetterGrid(request.resource.data) || validCategoryDash(request.resource.data));
+        && (validLetterGrid(request.resource.data)
+          || validCategoryDash(request.resource.data)
+          || validTrivia(request.resource.data));
       // Members may add themselves to the player list.
       allow update: if isMember() && (
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players'])
