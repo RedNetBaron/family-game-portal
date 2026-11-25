@@ -143,6 +143,7 @@ export function DailyWord({ member }: { member: Member }) {
       </div>
 
       {error && <p className="error center-text">{error}</p>}
+      {!done && !error && typed.length === LENGTH && !busy && <p className="hint center-text">Tap Enter to check your word.</p>}
 
       {done ? (
         <div className="card dw-done">
@@ -159,7 +160,11 @@ export function DailyWord({ member }: { member: Member }) {
         <div className="dw-keys" aria-label="Keyboard">
           {ROWS.map((row, i) => (
             <div key={row} className="dw-keyrow">
-              {i === 2 && <button className="dw-key wide" onClick={() => press('enter')} disabled={busy}>{busy ? '…' : 'Enter'}</button>}
+              {i === 2 && (
+                <button className={`dw-key wide ${typed.length === LENGTH ? 'go' : ''}`} onClick={() => press('enter')} disabled={busy}>
+                  {busy ? 'Checking…' : 'Enter'}
+                </button>
+              )}
               {[...row].map((k) => (
                 <button key={k} className={`dw-key ${keyMarks[k] ?? ''}`} onClick={() => press(k)}>
                   {k}
