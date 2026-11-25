@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { joinInProgress, signOutMember } from './lib/account';
 import { useHash } from './lib/useHash';
-import { useMember } from './lib/useMember';
+import { useMember, type Member } from './lib/useMember';
+import { useWaiting } from './lib/useWaiting';
 import { Chat } from './pages/Chat';
 import { CategoryDashSetup } from './games/categoryDash/CategoryDashSetup';
 import { GameScreen } from './games/GameScreen';
@@ -35,6 +36,11 @@ export function App() {
     return <main className="center">Loading…</main>;
   }
 
+  return <Shell member={state.member} hash={hash} />;
+}
+
+function Shell({ member, hash }: { member: Member; hash: string }) {
+  const waiting = useWaiting(member.uid);
   const gameId = hash.match(/^#\/game\/([A-Za-z0-9]+)$/)?.[1] ?? null;
   const tab = gameId || hash.startsWith('#/games') ? 'games' : 'chat';
 
@@ -49,17 +55,17 @@ export function App() {
       </header>
       <div className="content">
         {gameId ? (
-          <GameScreen key={gameId} gameId={gameId} member={state.member} />
+          <GameScreen key={gameId} gameId={gameId} member={member} />
         ) : hash === '#/games/trivia' ? (
-          <TriviaSetup member={state.member} />
+          <TriviaSetup member={member} />
         ) : hash === '#/games/category-dash' ? (
-          <CategoryDashSetup member={state.member} />
+          <CategoryDashSetup member={member} />
         ) : hash === '#/games/letter-grid' ? (
-          <LetterGridSetup member={state.member} />
+          <LetterGridSetup member={member} />
         ) : tab === 'chat' ? (
-          <Chat member={state.member} />
+          <Chat member={member} />
         ) : (
-          <Games />
+          <Games waiting={waiting} />
         )}
       </div>
       <nav className="tabs">
@@ -68,6 +74,7 @@ export function App() {
         </a>
         <a className={tab === 'games' ? 'active' : ''} href="#/games">
           Games
+          {waiting.length > 0 && <span className="tab-count" aria-label={`${waiting.length} waiting on you`}>{waiting.length}</span>}
         </a>
       </nav>
     </div>

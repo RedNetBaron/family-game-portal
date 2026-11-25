@@ -352,3 +352,20 @@ a.menu-item:active { background: var(--surface-2); }
 .tq-review li.wrong span:nth-child(2) { opacity: 0.6; text-decoration: line-through; }
 .tq-review li .pts { color: var(--gold); font-size: 0.85rem; }
 .lg-standings .who small { font-weight: 400; }
+
+/* Waiting-on-you */
+.tabs a { position: relative; }
+.tab-count {
+  display: inline-block;
+  min-width: 1.3rem;
+  margin-left: 0.4rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #1a1206;
+  font-size: 0.8rem;
+  line-height: 1.3rem;
+  text-align: center;
+}
+.your-turn { border-color: var(--gold); margin-bottom: 1rem; }
+.your-turn h3 { margin-top: 0; }
