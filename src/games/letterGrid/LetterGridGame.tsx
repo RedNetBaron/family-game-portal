@@ -91,10 +91,10 @@ export function LetterGridGame({ gameId, member }: { gameId: string; member: Mem
   return (
     <section className="lg">
       <header className="lg-head">
-        <a href="#/games" className="link">‹ Games</a>
-        <h2>Letter Grid</h2>
+        <a href="#/games/letter-grid" className="link">‹ Letter Grid</a>
+        <h2>{game.mode === 'live' ? 'Live game' : 'Take turns'}</h2>
         <span className="badge">
-          {sizeOf(game.grid)}×{sizeOf(game.grid)} · {game.mode === 'live' ? 'Live' : 'Turns'}
+          {sizeOf(game.grid)}×{sizeOf(game.grid)} · {formatDuration(game.seconds)}
         </span>
       </header>
       {error && <p className="error">{error}</p>}

@@ -272,3 +272,19 @@ input:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outl
 .lg-grid.size-5 .lg-tile { font-size: clamp(1.3rem, 7vw, 2rem); border-radius: 10px; }
 .lg-grid.size-6 { gap: 5px; }
 .lg-grid.size-6 .lg-tile { font-size: clamp(1.1rem, 6vw, 1.7rem); border-radius: 8px; box-shadow: 0 2px 0 #9c7a45; }
+
+.menu-title { margin: 0.2rem 0 0; font-size: 1.15rem; color: var(--gold); }
+.game-menu { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+.menu-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.8rem;
+  color: var(--text); text-decoration: none; min-height: 72px;
+}
+.menu-item span:first-child { display: grid; gap: 0.2rem; }
+.menu-item strong { font-size: 1.1rem; color: var(--gold); }
+.menu-item small { color: var(--muted); font-size: 0.9rem; }
+.menu-item .chev { font-size: 2rem; color: var(--gold); line-height: 1; }
+a.menu-item:active { background: var(--surface-2); }
+.menu-item.soon { opacity: 0.6; }
+.menu-item.soon strong { color: var(--text); }
+.games .lg-head { margin-bottom: -0.2rem; }
+.badge { white-space: nowrap; }

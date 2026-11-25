@@ -4,6 +4,7 @@ import { useHash } from './lib/useHash';
 import { useMember } from './lib/useMember';
 import { Chat } from './pages/Chat';
 import { LetterGridGame } from './games/letterGrid/LetterGridGame';
+import { LetterGridSetup } from './games/letterGrid/LetterGridSetup';
 import { Games } from './pages/Games';
 import { Welcome } from './pages/Welcome';
 
@@ -33,7 +34,7 @@ export function App() {
   }
 
   const gameId = hash.match(/^#\/game\/([A-Za-z0-9]+)$/)?.[1] ?? null;
-  const tab = gameId || hash === '#/games' ? 'games' : 'chat';
+  const tab = gameId || hash.startsWith('#/games') ? 'games' : 'chat';
 
   return (
     <div className="shell">
@@ -47,10 +48,12 @@ export function App() {
       <div className="content">
         {gameId ? (
           <LetterGridGame key={gameId} gameId={gameId} member={state.member} />
+        ) : hash === '#/games/letter-grid' ? (
+          <LetterGridSetup member={state.member} />
         ) : tab === 'chat' ? (
           <Chat member={state.member} />
         ) : (
-          <Games member={state.member} />
+          <Games />
         )}
       </div>
       <nav className="tabs">
