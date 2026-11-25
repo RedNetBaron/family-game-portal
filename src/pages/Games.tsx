@@ -1,3 +1,4 @@
+import { NotifyCard } from './NotifyCard';
 import type { Waiting } from '../lib/useWaiting';
 import { GAME_NAMES } from '../lib/useWaiting';
 
@@ -19,7 +20,7 @@ const games: { name: string; blurb: string; href: string | null }[] = [
   },
 ];
 
-export function Games({ waiting }: { waiting: Waiting[] }) {
+export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
   return (
     <section className="games">
       {waiting.length > 0 && (
@@ -40,6 +41,7 @@ export function Games({ waiting }: { waiting: Waiting[] }) {
           </ul>
         </div>
       )}
+      <NotifyCard uid={uid} />
       <h2 className="menu-title">Pick a game</h2>
       <ul className="game-menu">
         {games.map((g) => (

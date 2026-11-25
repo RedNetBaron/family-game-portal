@@ -65,7 +65,7 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
         ) : tab === 'chat' ? (
           <Chat member={member} />
         ) : (
-          <Games waiting={waiting} />
+          <Games waiting={waiting} uid={member.uid} />
         )}
       </div>
       <nav className="tabs">

@@ -6,6 +6,7 @@ import {
 } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { disableNotifications } from './notify';
 
 // Family members sign in with a name and password. Firebase needs an email,
 // so each name maps to a private address that never receives mail.
@@ -71,6 +72,8 @@ export function signInMember(name: string, password: string) {
   return signInWithEmailAndPassword(auth, loginEmail(name), password);
 }
 
-export function signOutMember() {
+export async function signOutMember() {
+  // Stop this phone getting the old member's notifications.
+  await disableNotifications().catch(() => undefined);
   return signOut(auth);
 }

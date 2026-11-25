@@ -369,3 +369,8 @@ a.menu-item:active { background: var(--surface-2); }
 }
 .your-turn { border-color: var(--gold); margin-bottom: 1rem; }
 .your-turn h3 { margin-top: 0; }
+
+/* Notifications */
+.notify { border-color: var(--gold); margin-bottom: 1rem; }
+.notify h3 { margin-top: 0; }
+.notify-on { margin: 0 0 1rem; }
