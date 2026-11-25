@@ -12,6 +12,9 @@ import { Games } from './pages/Games';
 import { Scores } from './pages/Scores';
 import { LogoSheet } from './pages/LogoSheet';
 import { DailyWord } from './games/dailyWord/DailyWord';
+import { DailyTarget } from './games/numberTarget/DailyTarget';
+import { NumberTargetSetup } from './games/numberTarget/NumberTargetSetup';
+import { MathSprintSetup } from './games/mathSprint/MathSprintSetup';
 import { Welcome } from './pages/Welcome';
 
 export function App() {
@@ -62,10 +65,16 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
           <GameScreen key={gameId} gameId={gameId} member={member} />
         ) : hash === '#/games/daily-word' ? (
           <DailyWord member={member} />
+        ) : hash === '#/games/daily-target' ? (
+          <DailyTarget member={member} />
         ) : tab === 'scores' ? (
           <Scores member={member} />
         ) : hash === '#/games/trivia' ? (
           <TriviaSetup member={member} />
+        ) : hash === '#/games/number-target' ? (
+          <NumberTargetSetup member={member} />
+        ) : hash === '#/games/math-sprint' ? (
+          <MathSprintSetup member={member} />
         ) : hash === '#/games/category-dash' ? (
           <CategoryDashSetup member={member} />
         ) : hash === '#/games/letter-grid' ? (

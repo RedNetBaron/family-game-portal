@@ -137,6 +137,24 @@ service cloud.firestore {
         && d.questions.size() <= 20;
     }
 
+    function validNumberTarget(d) {
+      return d.type == 'numberTarget'
+        && d.perRound is int
+        && d.perRound >= 20
+        && d.perRound <= 180
+        && d.puzzles is list
+        && d.puzzles.size() >= 1
+        && d.puzzles.size() <= 10;
+    }
+
+    function validMathSprint(d) {
+      return d.type == 'mathSprint'
+        && d.level in ['easy', 'medium', 'hard']
+        && d.problems is list
+        && d.problems.size() >= 1
+        && d.problems.size() <= 400;
+    }
+
     // Games. Any member can start one; the creator controls the start of a live game.
     match /games/{gameId} {
       allow read: if isMember();
@@ -149,7 +167,9 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && (validLetterGrid(request.resource.data)
           || validCategoryDash(request.resource.data)
-          || validTrivia(request.resource.data));
+          || validTrivia(request.resource.data)
+          || validNumberTarget(request.resource.data)
+          || validMathSprint(request.resource.data));
       // Members may add themselves to the player list.
       allow update: if isMember() && (
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players'])

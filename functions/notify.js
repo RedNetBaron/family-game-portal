@@ -4,6 +4,8 @@ export const GAME_NAMES = {
   letterGrid: 'Letter Grid',
   categoryDash: 'Category Dash',
   trivia: 'Family Trivia',
+  numberTarget: 'Number Target',
+  mathSprint: 'Math Sprint',
 };
 
 /** How long before a take-turns game closes we remind people who haven't played. */

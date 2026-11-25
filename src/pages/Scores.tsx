@@ -2,6 +2,8 @@ import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestor
 import { useEffect, useState } from 'react';
 import {
   DAILY_GAME_CAP,
+  DAILY_GAMES,
+  dailyGameOf,
   familyDay,
   familyMonth,
   GAME_LABELS,
@@ -26,6 +28,9 @@ const BOARDS = [
   { id: 'letterGrid', label: GAME_LABELS.letterGrid },
   { id: 'categoryDash', label: GAME_LABELS.categoryDash },
   { id: 'trivia', label: GAME_LABELS.trivia },
+  { id: 'dailyTarget', label: GAME_LABELS.dailyTarget },
+  { id: 'numberTarget', label: GAME_LABELS.numberTarget },
+  { id: 'mathSprint', label: GAME_LABELS.mathSprint },
 ];
 
 function useMonthData(month: string) {
@@ -65,6 +70,7 @@ export function Scores({ member }: { member: Member }) {
   const rows = results && daily ? standings(results, daily, board) : null;
   const today = familyDay(now);
   const streaks = (daily ?? [])
+    .filter((d) => dailyGameOf(d) === 'dailyWord')
     .filter((d) => (d.day === today || d.day === previousDay(today)) && (d.streak ?? 0) > 1)
     .sort((a, b) => (b.streak ?? 0) - (a.streak ?? 0))
     .filter((d, i, all) => all.findIndex((x) => x.uid === d.uid) === i);
@@ -108,8 +114,8 @@ export function Scores({ member }: { member: Member }) {
                   {r.name}
                   {lastChamp?.uid === r.uid ? ' 🏆' : ''}{' '}
                   <small className="hint">
-                    {r.games} {board === 'dailyWord' ? (r.games === 1 ? 'day' : 'days') : r.games === 1 ? 'game' : 'games'}
-                    {r.wins ? ` · ${r.wins} ${board === 'dailyWord' ? 'solved' : r.wins === 1 ? 'win' : 'wins'}` : ''}
+                    {r.games} {DAILY_GAMES.includes(board) ? (r.games === 1 ? 'day' : 'days') : r.games === 1 ? 'game' : 'games'}
+                    {r.wins ? ` · ${r.wins} ${board === 'dailyWord' ? 'solved' : board === 'dailyTarget' ? 'bullseye' : r.wins === 1 ? 'win' : 'wins'}` : ''}
                   </small>
                 </span>
                 <span className="pts">{r.points}</span>
@@ -156,6 +162,7 @@ export function Scores({ member }: { member: Member }) {
           <li>A game with only one player earns {PLAY_POINTS} point for playing.</li>
           <li>Only your best {DAILY_GAME_CAP} games each day count, so more games don't automatically win.</li>
           <li>Daily Word: solved in 1–2 guesses = 5, 3 = 4, 4 = 3, 5–6 = 2, not solved = 1.</li>
+          <li>Daily Target: exact = 5, within 5 = 4, within 10 = 3, within 25 = 2, anything else = 1.</li>
           <li>Points reset each month. The top player is crowned champion on the 1st.</li>
         </ul>
       </details>

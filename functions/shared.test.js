@@ -40,3 +40,14 @@ test('standings cap best 3 games per day and add daily word', () => {
   assert.equal(standings(results, daily, 'dailyWord')[0].uid, 'b');
   assert.equal(standings(results, daily, 'letterGrid').length, 0);
 });
+
+test('standings split daily boards', async () => {
+  const daily = [
+    { uid: 'a', name: 'A', day: '2026-11-25', points: 5, solved: true },
+    { uid: 'a', name: 'A', day: '2026-11-25', points: 4, solved: false, game: 'dailyTarget' },
+    { uid: 'b', name: 'B', day: '2026-11-25', points: 5, solved: true, game: 'dailyTarget' },
+  ];
+  assert.deepEqual(standings([], daily, 'overall').map((r) => [r.uid, r.points]), [['a', 9], ['b', 5]]);
+  assert.deepEqual(standings([], daily, 'dailyWord').map((r) => [r.uid, r.points]), [['a', 5]]);
+  assert.deepEqual(standings([], daily, 'dailyTarget').map((r) => [r.uid, r.points, r.wins]), [['b', 5, 1], ['a', 4, 0]]);
+});

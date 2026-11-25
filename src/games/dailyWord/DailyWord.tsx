@@ -38,7 +38,7 @@ export function DailyWord({ member }: { member: Member }) {
   useEffect(
     () =>
       onSnapshot(query(collection(db, 'dailyScores'), where('day', '==', day)), (snap) =>
-        setScores(snap.docs.map((d) => d.data() as Score)),
+        setScores(snap.docs.map((d) => d.data() as Score & { game?: string }).filter((s) => !s.game || s.game === 'dailyWord')),
       () => undefined),
     [day],
   );

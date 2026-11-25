@@ -10,6 +10,11 @@ const games: { name: string; blurb: string; href: string | null }[] = [
     href: '#/games/daily-word',
   },
   {
+    name: 'Daily Target',
+    blurb: 'One number puzzle a day for the whole family. Two minutes.',
+    href: '#/games/daily-target',
+  },
+  {
     name: 'Letter Grid',
     blurb: 'Find words in a grid of letters before time runs out.',
     href: '#/games/letter-grid',
@@ -24,6 +29,16 @@ const games: { name: string; blurb: string; href: string | null }[] = [
     blurb: 'Multiple-choice questions with a family scoreboard.',
     href: '#/games/trivia',
   },
+  {
+    name: 'Number Target',
+    blurb: 'Six numbers, one target. Use + − × ÷ to get as close as you can.',
+    href: '#/games/number-target',
+  },
+  {
+    name: 'Math Sprint',
+    blurb: 'Solve as many quick math problems as you can before time runs out.',
+    href: '#/games/math-sprint',
+  },
 ];
 
 export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
@@ -35,7 +50,7 @@ export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
           <ul className="game-list">
             {waiting.map(({ game, kind, hoursLeft }) => (
               <li key={game.id}>
-                <a href={kind === 'daily' ? '#/games/daily-word' : `#/game/${game.id}`}>
+                <a href={kind === 'daily' ? (game.type === 'dailyTarget' ? '#/games/daily-target' : '#/games/daily-word') : `#/game/${game.id}`}>
                   <span>
                     {GAME_NAMES[game.type] ?? 'Game'}
                     <small>{kind === 'daily' ? ' · today' : ` by ${game.createdByName}`}</small>
