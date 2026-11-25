@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { findPath, isAdjacent, MIN_WORD, pathToWord, wordPoints } from './logic';
+import { findPath, isAdjacent as adjacent, MIN_WORD, pathToWord, sizeOf, wordPoints } from './logic';
 import type { Dictionary } from './words';
 
 type Props = {
@@ -14,6 +14,8 @@ type Props = {
 type Flash = { text: string; kind: 'good' | 'bad' } | null;
 
 export function Board({ grid, deadline, dict, initialWords, onWordsChange, onFinish }: Props) {
+  const size = sizeOf(grid);
+  const isAdjacent = (a: number, b: number) => adjacent(a, b, size);
   const [words, setWords] = useState<string[]>(initialWords);
   const [path, setPath] = useState<number[]>([]);
   const [flash, setFlash] = useState<Flash>(null);
@@ -142,7 +144,8 @@ export function Board({ grid, deadline, dict, initialWords, onWordsChange, onFin
 
       <div
         ref={boardRef}
-        className="lg-grid"
+        className={`lg-grid size-${size}`}
+        style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

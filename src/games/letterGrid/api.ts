@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { Member } from '../../lib/useMember';
-import { makeGrid, ROUND_SECONDS } from './logic';
+import { formatDuration, makeGrid } from './logic';
 
 export type Mode = 'live' | 'turns';
 
@@ -18,6 +18,7 @@ export type Game = {
   id: string;
   type: 'letterGrid';
   mode: Mode;
+  size: number;
   grid: string[];
   seconds: number;
   createdBy: string;
@@ -42,12 +43,15 @@ export type Play = {
 
 export const TURNS_HOURS = 24;
 
-export async function createGame(member: Member, mode: Mode): Promise<string> {
+export type GameOptions = { size: number; seconds: number };
+
+export async function createGame(member: Member, mode: Mode, opts: GameOptions): Promise<string> {
   const ref = await addDoc(collection(db, 'games'), {
     type: 'letterGrid',
     mode,
-    grid: makeGrid(),
-    seconds: ROUND_SECONDS,
+    size: opts.size,
+    grid: makeGrid(opts.size),
+    seconds: opts.seconds,
     createdBy: member.uid,
     createdByName: member.name,
     createdAt: serverTimestamp(),
@@ -61,8 +65,8 @@ export async function createGame(member: Member, mode: Mode): Promise<string> {
     name: member.name,
     text:
       mode === 'live'
-        ? 'started a live Letter Grid game. Join now!'
-        : `started a Letter Grid game. Play your turn in the next ${TURNS_HOURS} hours.`,
+        ? `started a live Letter Grid game (${opts.size}×${opts.size}, ${formatDuration(opts.seconds)}). Join now!`
+        : `started a Letter Grid game (${opts.size}×${opts.size}, ${formatDuration(opts.seconds)}). Play your turn in the next ${TURNS_HOURS} hours.`,
     gameId: ref.id,
     createdAt: serverTimestamp(),
   }).catch(() => undefined);

@@ -61,7 +61,11 @@ service cloud.firestore {
         && request.resource.data.type == 'letterGrid'
         && request.resource.data.mode in ['live', 'turns']
         && request.resource.data.grid is list
-        && request.resource.data.grid.size() == 16
+        && request.resource.data['size'] in [4, 5, 6]
+        && request.resource.data.grid.size() == request.resource.data['size'] * request.resource.data['size']
+        && request.resource.data.seconds is int
+        && request.resource.data.seconds >= 30
+        && request.resource.data.seconds <= 900
         && request.resource.data.createdAt == request.time;
       // Members may add themselves to the player list.
       allow update: if isMember() && (

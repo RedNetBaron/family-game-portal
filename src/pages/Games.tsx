@@ -1,6 +1,7 @@
 import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { createGame, type Game, type Mode } from '../games/letterGrid/api';
+import { formatDuration, MAX_SECONDS, MIN_SECONDS, SIZES, TIMER_PRESETS } from '../games/letterGrid/logic';
 import { db } from '../lib/firebase';
 import { useNow } from '../lib/useNow';
 import type { Member } from '../lib/useMember';
@@ -30,7 +31,15 @@ export function Games({ member }: { member: Member }) {
   const [games, setGames] = useState<Game[]>([]);
   const [busy, setBusy] = useState<Mode | null>(null);
   const [error, setError] = useState('');
+  const [size, setSize] = useState(4);
+  const [preset, setPreset] = useState<number | 'custom'>(180);
+  const [customMin, setCustomMin] = useState('2');
+  const [customSec, setCustomSec] = useState('30');
   const now = useNow(30_000);
+
+  const customSeconds = (parseInt(customMin, 10) || 0) * 60 + (parseInt(customSec, 10) || 0);
+  const seconds = preset === 'custom' ? customSeconds : preset;
+  const timeOk = seconds >= MIN_SECONDS && seconds <= MAX_SECONDS;
 
   useEffect(() => {
     const q = query(collection(db, 'games'), orderBy('createdAt', 'desc'), limit(20));
@@ -43,7 +52,7 @@ export function Games({ member }: { member: Member }) {
     setBusy(mode);
     setError('');
     try {
-      const id = await createGame(member, mode);
+      const id = await createGame(member, mode, { size, seconds });
       location.hash = `#/game/${id}`;
     } catch {
       setError("Couldn't start a game. Please try again.");
@@ -56,18 +65,58 @@ export function Games({ member }: { member: Member }) {
     <section className="games">
       <article className="card game">
         <h3>Letter Grid</h3>
-        <p>Find words in a grid of letters before the 3 minutes run out. Longer words score more, and words someone else also found don't count.</p>
+        <p>Find words in a grid of letters before time runs out. Longer words score more, and words someone else also found don't count.</p>
+
+        <fieldset className="choice">
+          <legend>Board size</legend>
+          <div className="chips">
+            {SIZES.map((n) => (
+              <button key={n} type="button" className={size === n ? 'chip on' : 'chip'} aria-pressed={size === n} onClick={() => setSize(n)}>
+                {n}×{n}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="choice">
+          <legend>Timer</legend>
+          <div className="chips">
+            {TIMER_PRESETS.map((t) => (
+              <button key={t} type="button" className={preset === t ? 'chip on' : 'chip'} aria-pressed={preset === t} onClick={() => setPreset(t)}>
+                {t / 60} min
+              </button>
+            ))}
+            <button type="button" className={preset === 'custom' ? 'chip on' : 'chip'} aria-pressed={preset === 'custom'} onClick={() => setPreset('custom')}>
+              Custom
+            </button>
+          </div>
+          {preset === 'custom' && (
+            <div className="custom-time">
+              <label>
+                <input inputMode="numeric" value={customMin} maxLength={2} onChange={(e) => setCustomMin(e.target.value.replace(/\D/g, ''))} aria-label="Minutes" />
+                min
+              </label>
+              <label>
+                <input inputMode="numeric" value={customSec} maxLength={2} onChange={(e) => setCustomSec(e.target.value.replace(/\D/g, ''))} aria-label="Seconds" />
+                sec
+              </label>
+              {!timeOk && <span className="error">Pick between 30 seconds and 15 minutes.</span>}
+            </div>
+          )}
+        </fieldset>
+
         <div className="mode-buttons">
-          <button className="primary" disabled={!!busy} onClick={() => start('live')}>
+          <button className="primary" disabled={!!busy || !timeOk} onClick={() => start('live')}>
             {busy === 'live' ? 'Starting…' : 'Play live'}
           </button>
-          <button className="primary alt" disabled={!!busy} onClick={() => start('turns')}>
+          <button className="primary alt" disabled={!!busy || !timeOk} onClick={() => start('turns')}>
             {busy === 'turns' ? 'Starting…' : 'Take turns'}
           </button>
         </div>
         <p className="hint">
-          <strong>Live:</strong> everyone plays the same 3 minutes together. <strong>Take turns:</strong> everyone plays
-          the same letters whenever they like over the next 24 hours.
+          {timeOk ? `${size}×${size} board, ${formatDuration(seconds)}. ` : ''}
+          <strong>Live:</strong> everyone plays together. <strong>Take turns:</strong> everyone plays the same letters
+          whenever they like over the next 24 hours.
         </p>
         {error && <p className="error">{error}</p>}
       </article>
@@ -82,7 +131,8 @@ export function Games({ member }: { member: Member }) {
                 <li key={g.id}>
                   <a href={`#/game/${g.id}`}>
                     <span>
-                      Letter Grid {g.mode === 'live' ? '(live)' : '(take turns)'}
+                      Letter Grid {Math.round(Math.sqrt(g.grid.length))}×{Math.round(Math.sqrt(g.grid.length))}{' '}
+                      {g.mode === 'live' ? '(live)' : '(take turns)'}
                       <small> by {g.createdByName}</small>
                     </span>
                     <span className={s.active ? 'badge hot' : 'badge'}>{s.label}</span>

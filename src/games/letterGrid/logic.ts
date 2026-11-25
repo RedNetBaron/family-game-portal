@@ -1,7 +1,21 @@
 // Letter Grid: pure game logic (no Firebase, no React).
 
-export const SIZE = 4;
-export const ROUND_SECONDS = 180;
+export const SIZES = [4, 5, 6] as const;
+export const TIMER_PRESETS = [60, 180, 300];
+export const MIN_SECONDS = 30;
+export const MAX_SECONDS = 15 * 60;
+
+export function sizeOf(grid: string[]): number {
+  return Math.round(Math.sqrt(grid.length));
+}
+
+export function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  if (!s) return `${m} ${m === 1 ? 'minute' : 'minutes'}`;
+  if (!m) return `${s} seconds`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 export const MIN_WORD = 3;
 
 // Letter weights roughly follow English frequency. "Qu" is one tile.
@@ -22,32 +36,35 @@ function pick(rand: () => number): string {
   return 'E';
 }
 
-export function makeGrid(rand: () => number = Math.random): string[] {
+export function makeGrid(size = 4, rand: () => number = Math.random): string[] {
+  const n = size * size;
   for (;;) {
-    const grid = Array.from({ length: SIZE * SIZE }, () => pick(rand));
+    const grid = Array.from({ length: n }, () => pick(rand));
     const vowels = grid.filter((l) => VOWELS.has(l)).length;
     const rare = grid.filter((l) => 'QU X J Z K V'.split(' ').includes(l)).length;
-    if (vowels >= 4 && vowels <= 7 && rare <= 2) return grid;
+    if (vowels >= Math.round(n * 0.27) && vowels <= Math.round(n * 0.45) && rare <= Math.ceil(n / 8)) {
+      return grid;
+    }
   }
 }
 
-export function neighbors(i: number): number[] {
-  const r = Math.floor(i / SIZE);
-  const c = i % SIZE;
+export function neighbors(i: number, size = 4): number[] {
+  const r = Math.floor(i / size);
+  const c = i % size;
   const out: number[] = [];
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
       if (!dr && !dc) continue;
       const nr = r + dr;
       const nc = c + dc;
-      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) out.push(nr * SIZE + nc);
+      if (nr >= 0 && nr < size && nc >= 0 && nc < size) out.push(nr * size + nc);
     }
   }
   return out;
 }
 
-export function isAdjacent(a: number, b: number): boolean {
-  return neighbors(a).includes(b);
+export function isAdjacent(a: number, b: number, size = 4): boolean {
+  return neighbors(a, size).includes(b);
 }
 
 export function pathToWord(grid: string[], path: number[]): string {
@@ -57,13 +74,14 @@ export function pathToWord(grid: string[], path: number[]): string {
 /** Returns a path of tiles spelling the word, or null if it can't be made. */
 export function findPath(grid: string[], word: string): number[] | null {
   const w = word.toUpperCase();
+  const size = sizeOf(grid);
   const dfs = (pos: number, at: number, used: number[]): number[] | null => {
     const tile = grid[at];
     if (!w.startsWith(tile, pos)) return null;
     const next = pos + tile.length;
     const path = [...used, at];
     if (next === w.length) return path;
-    for (const n of neighbors(at)) {
+    for (const n of neighbors(at, size)) {
       if (!path.includes(n)) {
         const found = dfs(next, n, path);
         if (found) return found;
@@ -115,12 +133,13 @@ export function scoreRound(plays: { uid: string; name: string; words: string[] }
 /** Every dictionary word that can be made on the grid. */
 export function solve(grid: string[], dict: Set<string>, prefixes: Set<string>): string[] {
   const found = new Set<string>();
+  const size = sizeOf(grid);
   const dfs = (at: number, sofar: string, used: Set<number>) => {
     const s = sofar + grid[at].toLowerCase();
     if (!prefixes.has(s) && !dict.has(s)) return;
     if (s.length >= MIN_WORD && dict.has(s)) found.add(s);
     used.add(at);
-    for (const n of neighbors(at)) if (!used.has(n)) dfs(n, s, used);
+    for (const n of neighbors(at, size)) if (!used.has(n)) dfs(n, s, used);
     used.delete(at);
   };
   for (let i = 0; i < grid.length; i++) dfs(i, '', new Set());

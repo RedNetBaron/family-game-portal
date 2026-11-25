@@ -5,7 +5,7 @@ import { useNow } from '../../lib/useNow';
 import type { Member } from '../../lib/useMember';
 import { beginPlay, joinLobby, markDone, saveWords, startLiveGame, submitPlay, type Game, type Play } from './api';
 import { Board } from './Board';
-import { scoreRound, solve, wordPoints } from './logic';
+import { formatDuration, scoreRound, sizeOf, solve, wordPoints } from './logic';
 import { loadDictionary, type Dictionary } from './words';
 
 const ms = (t: { toMillis(): number } | null | undefined) => (t ? t.toMillis() : null);
@@ -93,7 +93,9 @@ export function LetterGridGame({ gameId, member }: { gameId: string; member: Mem
       <header className="lg-head">
         <a href="#/games" className="link">‹ Games</a>
         <h2>Letter Grid</h2>
-        <span className="badge">{game.mode === 'live' ? 'Live' : 'Take turns'}</span>
+        <span className="badge">
+          {sizeOf(game.grid)}×{sizeOf(game.grid)} · {game.mode === 'live' ? 'Live' : 'Turns'}
+        </span>
       </header>
       {error && <p className="error">{error}</p>}
       {body}
@@ -110,7 +112,7 @@ function Lobby({ game, member, joined }: { game: Game; member: Member; joined: b
       <h3>Waiting for players</h3>
       <p className="hint">
         {isHost
-          ? 'When everyone is in, press Start. Everyone gets the same letters and 3 minutes.'
+          ? `When everyone is in, press Start. Everyone gets the same letters and ${formatDuration(game.seconds)}.`
           : `${game.createdByName} will start the round when everyone is in.`}
       </p>
       <ul className="lg-players">
@@ -149,7 +151,7 @@ function TurnIntro({ game, member }: { game: Game; member: Member }) {
     <div className="card lg-lobby">
       <h3>Your turn</h3>
       <p>
-        You get <strong>3 minutes</strong> to find as many words as you can. Once you start, the clock keeps
+        You get <strong>{formatDuration(game.seconds)}</strong> on a {sizeOf(game.grid)}×{sizeOf(game.grid)} board to find as many words as you can. Once you start, the clock keeps
         running, so make sure you have a few minutes free.
       </p>
       <p className="hint">
@@ -157,7 +159,7 @@ function TurnIntro({ game, member }: { game: Game; member: Member }) {
         {hoursLeft === 1 ? 'hour' : 'hours'} left to play.
       </p>
       <button className="primary" disabled={busy} onClick={() => { setBusy(true); beginPlay(game, member).catch(() => setBusy(false)); }}>
-        Start my 3 minutes
+        Start my turn
       </button>
     </div>
   );
