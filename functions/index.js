@@ -7,7 +7,8 @@ import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { createRequire } from 'node:module';
 import { cleanGuess, markGuess, MAX_GUESSES, WORD_LENGTH } from './shared/dailyword.js';
-import { dailyWordPoints, familyDay, familyMonth, monthName, previousDay, previousMonth, standings } from './shared/scoring.js';
+import { DAILY_GRACE_SECONDS, DAILY_SECONDS, makePuzzle, replay, dailyTargetPoints } from './shared/numbers.js';
+import { PLAY_POINTS, dailyWordPoints, familyDay, familyMonth, monthName, previousDay, previousMonth, standings } from './shared/scoring.js';
 import { DEAD_TOKEN_CODES, dueForReminder, mentionMessage, newGameMessage, recipients, reminderMessage, REMIND_HOURS_BEFORE } from './notify.js';
 
 initializeApp();
@@ -124,6 +125,72 @@ export const dailyGuess = onCall(async (req) => {
     tx.set(playRef, data);
     return { guesses, marks, solved, done, answer: done ? answer : null, points: data.points ?? null, streak: data.streak ?? null };
   });
+});
+
+/** Today's Daily Target numbers, picked the first time anyone starts. Never readable by the app. */
+async function targetFor(day) {
+  const ref = db.collection('dailySecrets').doc(`nt_${day}`);
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (snap.exists) return { numbers: snap.get('numbers'), target: snap.get('target') };
+    const p = makePuzzle('mix');
+    tx.set(ref, { ...p, createdAt: FieldValue.serverTimestamp() });
+    return p;
+  });
+}
+
+/**
+ * Daily Target. action 'start' starts your 2-minute clock and returns today's numbers;
+ * action 'submit' checks your steps on the server and records your score.
+ */
+export const dailyTarget = onCall(async (req) => {
+  const uid = req.auth?.uid;
+  if (!uid) throw new HttpsError('unauthenticated', 'Sign in first.');
+  const member = await db.collection('members').doc(uid).get();
+  if (!member.exists) throw new HttpsError('permission-denied', 'Family members only.');
+  const now = Date.now();
+  const today = familyDay(now);
+  const name = member.get('name');
+
+  if (req.data?.action === 'start') {
+    const puzzle = await targetFor(today);
+    const playRef = db.collection('dailyPlays').doc(`dt_${today}_${uid}`);
+    return db.runTransaction(async (tx) => {
+      const play = await tx.get(playRef);
+      if (play.exists) {
+        return { day: today, numbers: play.get('numbers'), target: play.get('target'), startedAt: play.get('startedAt').toMillis(), serverNow: now, done: !!play.get('done') };
+      }
+      tx.set(playRef, { uid, name, day: today, game: 'dailyTarget', ...puzzle, startedAt: Timestamp.fromMillis(now), done: false });
+      return { day: today, ...puzzle, startedAt: now, serverNow: now, done: false };
+    });
+  }
+
+  if (req.data?.action === 'submit') {
+    // A round started just before midnight can finish just after it.
+    const day = req.data?.day === previousDay(today) ? previousDay(today) : today;
+    const steps = Array.isArray(req.data?.steps) ? req.data.steps.slice(0, 10).map(String) : [];
+    const playRef = db.collection('dailyPlays').doc(`dt_${day}_${uid}`);
+    const scoreRef = db.collection('dailyScores').doc(`dt_${day}_${uid}`);
+    return db.runTransaction(async (tx) => {
+      const play = await tx.get(playRef);
+      if (!play.exists) throw new HttpsError('failed-precondition', 'Start the puzzle first.');
+      if (play.get('done')) throw new HttpsError('failed-precondition', 'You already finished today.');
+      const startedAt = play.get('startedAt').toMillis();
+      const late = now > startedAt + (DAILY_SECONDS + DAILY_GRACE_SECONDS) * 1000;
+      const numbers = play.get('numbers');
+      const target = play.get('target');
+      const r = replay(numbers, target, late ? [] : steps);
+      const points = late ? PLAY_POINTS : dailyTargetPoints(r.distance);
+      const seconds = Math.min(DAILY_SECONDS, Math.round((now - startedAt) / 1000));
+      const kept = r.steps.map((s) => `${s.a}${s.op}${s.b}`);
+      const result = { best: r.best, distance: r.distance, points, seconds, steps: kept, late };
+      tx.set(playRef, { ...result, done: true, finishedAt: FieldValue.serverTimestamp() }, { merge: true });
+      tx.set(scoreRef, { uid, name, day, month: day.slice(0, 7), game: 'dailyTarget', solved: r.distance === 0, best: r.best, distance: r.distance, points, seconds, finishedAt: FieldValue.serverTimestamp() });
+      return { ...result, numbers, target };
+    });
+  }
+
+  throw new HttpsError('invalid-argument', 'Unknown action.');
 });
 
 /** 8 AM on the 1st: crown last month's champion, post the recap to the chat and ping everyone. */

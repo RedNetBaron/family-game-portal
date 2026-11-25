@@ -14,7 +14,14 @@ export const GAME_LABELS = {
   categoryDash: 'Category Dash',
   trivia: 'Family Trivia',
   dailyWord: 'Daily Word',
+  numberTarget: 'Number Target',
+  mathSprint: 'Math Sprint',
+  dailyTarget: 'Daily Target',
 };
+
+/** Daily puzzles (scored by the server into dailyScores). Docs without a game field are Daily Word. */
+export const DAILY_GAMES = ['dailyWord', 'dailyTarget'];
+export const dailyGameOf = (d) => d.game || 'dailyWord';
 
 /** 'YYYY-MM-DD' in the family's time zone. */
 export function familyDay(ms) {
@@ -70,7 +77,7 @@ export function dailyWordPoints(solved, guesses) {
  * Month standings.
  * results: [{ type, day, placements: { uid: { name, place, points } } }]
  * daily:   [{ uid, name, day, points, solved }]
- * board:   'overall' or a game type ('letterGrid', 'dailyWord', ...).
+ * board:   'overall' or a game type ('letterGrid', 'dailyWord', 'dailyTarget', ...).
  */
 export function standings(results, daily, board = 'overall') {
   const people = new Map();
@@ -81,7 +88,8 @@ export function standings(results, daily, board = 'overall') {
     return p;
   };
 
-  if (board !== 'dailyWord') {
+  const dailyBoard = DAILY_GAMES.includes(board);
+  if (!dailyBoard) {
     // Group each person's game results by day and keep the best few.
     const perDay = new Map();
     for (const r of results) {
@@ -103,12 +111,13 @@ export function standings(results, daily, board = 'overall') {
     }
   }
 
-  if (board === 'overall' || board === 'dailyWord') {
+  if (board === 'overall' || dailyBoard) {
     for (const d of daily) {
+      if (dailyBoard && dailyGameOf(d) !== board) continue;
       const p = person(d.uid, d.name);
       p.points += d.points;
       p.games += 1;
-      if (d.solved) p.wins += board === 'dailyWord' ? 1 : 0;
+      if (d.solved && dailyBoard) p.wins += 1;
     }
   }
 

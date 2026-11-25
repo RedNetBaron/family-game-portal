@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "emulators": "firebase emulators:start --only auth,firestore",
     "deploy": "npm run build && firebase deploy --only hosting,firestore:rules",
-    "test": "tsx src/games/letterGrid/logic.test.ts && tsx src/games/categoryDash/logic.test.ts && tsx src/games/trivia/logic.test.ts"
+    "test": "tsx src/games/letterGrid/logic.test.ts && tsx src/games/categoryDash/logic.test.ts && tsx src/games/trivia/logic.test.ts && tsx src/games/numberTarget/logic.test.ts && tsx src/games/mathSprint/logic.test.ts"
   },
   "dependencies": {
     "firebase": "^13.4.0",

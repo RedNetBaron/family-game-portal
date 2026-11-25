@@ -10,6 +10,9 @@ export const GAME_NAMES: Record<string, string> = {
   categoryDash: 'Category Dash',
   trivia: 'Family Trivia',
   dailyWord: 'Daily Word',
+  numberTarget: 'Number Target',
+  mathSprint: 'Math Sprint',
+  dailyTarget: 'Daily Target',
 };
 
 /** A live lobby older than this is treated as abandoned. */
@@ -53,10 +56,22 @@ export function useWaiting(uid: string): Waiting[] {
     setDailyDone(null);
     return onSnapshot(doc(db, 'dailyScores', `${day}_${uid}`), (s) => setDailyDone(s.exists()), () => setDailyDone(null));
   }, [day, uid]);
+  const [targetDone, setTargetDone] = useState<boolean | null>(null);
+  useEffect(() => {
+    setTargetDone(null);
+    return onSnapshot(doc(db, 'dailyScores', `dt_${day}_${uid}`), (s) => setTargetDone(s.exists()), () => setTargetDone(null));
+  }, [day, uid]);
   const waiting = waitingFor(games, uid, now);
   if (dailyDone === false) {
     waiting.push({
       game: { id: `daily-${day}`, type: 'dailyWord', createdByName: 'today', mode: 'turns' } as BaseGame,
+      kind: 'daily',
+      hoursLeft: 0,
+    });
+  }
+  if (targetDone === false) {
+    waiting.push({
+      game: { id: `daily-target-${day}`, type: 'dailyTarget', createdByName: 'today', mode: 'turns' } as BaseGame,
       kind: 'daily',
       hoursLeft: 0,
     });
