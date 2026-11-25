@@ -499,3 +499,35 @@ button.brand { background: none; border: none; padding: 0; font: inherit; font-w
   border-radius: 8px;
 }
 .mention-picks button:active, .mention-picks button:hover { background: var(--surface); }
+
+/* Reactions */
+.bubble[role=button] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.react-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+  padding: 4px 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.react-bar button {
+  background: none;
+  border: none;
+  font-size: 1.45rem;
+  padding: 2px 4px;
+  border-radius: 999px;
+  touch-action: manipulation;
+}
+.react-bar button.on { background: rgba(245, 181, 68, 0.25); }
+.reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.chip-react {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.85rem;
+  touch-action: manipulation;
+}
+.chip-react.on { border-color: var(--gold); background: rgba(245, 181, 68, 0.18); }

@@ -11,6 +11,7 @@ import {
   type Timestamp,
 } from 'firebase/firestore';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { deleteField, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Member } from '../lib/useMember';
 import { useChampions } from './Scores';
@@ -23,6 +24,7 @@ type Message = {
   text: string;
   gameId?: string;
   mentions?: string[];
+  reactions?: Record<string, string>;
   createdAt: Timestamp | null;
 };
 
@@ -55,6 +57,16 @@ export function Chat({ member }: { member: Member }) {
       ),
     [],
   );
+
+  const [picker, setPicker] = useState<string | null>(null);
+
+  function react(m: Message, emoji: string) {
+    setPicker(null);
+    const current = m.reactions?.[member.uid];
+    updateDoc(doc(db, 'messages', m.id), {
+      [`reactions.${member.uid}`]: current === emoji ? deleteField() : emoji,
+    }).catch(() => setError("Couldn't add your reaction. Try again."));
+  }
 
   const q = mentionQuery(text);
   const picks = q === null ? [] : suggestions(people, q, member.uid);
@@ -120,7 +132,13 @@ export function Chat({ member }: { member: Member }) {
                   <a className="primary small" href={`#/game/${m.gameId}`}>Open game</a>
                 </span>
               ) : (
-                <span className="bubble">
+                <span
+                  className="bubble"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="React to this message"
+                  onClick={() => setPicker(picker === m.id ? null : m.id)}
+                >
                   {splitMentions(m.text, people).map((part, i) =>
                     part.uid ? (
                       <span key={i} className={part.uid === member.uid || part.uid === EVERYONE ? 'mention me' : 'mention'}>
@@ -130,6 +148,29 @@ export function Chat({ member }: { member: Member }) {
                       part.text
                     ),
                   )}
+                </span>
+              )}
+              {picker === m.id && (
+                <span className="react-bar" role="toolbar" aria-label="Reactions">
+                  {REACTIONS.map((e) => (
+                    <button key={e} className={m.reactions?.[member.uid] === e ? 'on' : ''} onClick={() => react(m, e)} aria-label={`React ${e}`}>
+                      {e}
+                    </button>
+                  ))}
+                </span>
+              )}
+              {m.reactions && Object.keys(m.reactions).length > 0 && (
+                <span className="reactions">
+                  {summarize(m.reactions, people).map((r) => (
+                    <button
+                      key={r.emoji}
+                      className={r.mine(member.uid) ? 'chip-react on' : 'chip-react'}
+                      onClick={() => react(m, r.emoji)}
+                      title={r.names.join(', ')}
+                    >
+                      {r.emoji} {r.count}
+                    </button>
+                  ))}
                 </span>
               )}
               <span className="meta">
@@ -175,4 +216,23 @@ export function Chat({ member }: { member: Member }) {
       </form>
     </section>
   );
+}
+
+const REACTIONS = ['❤️', '😂', '👍', '😮', '😢', '🎉'];
+
+function summarize(reactions: Record<string, string>, people: Person[]) {
+  const by = new Map<string, string[]>();
+  for (const [uid, emoji] of Object.entries(reactions)) {
+    if (!by.has(emoji)) by.set(emoji, []);
+    by.get(emoji)!.push(uid);
+  }
+  return REACTIONS.filter((e) => by.has(e)).map((emoji) => {
+    const uids = by.get(emoji)!;
+    return {
+      emoji,
+      count: uids.length,
+      names: uids.map((u) => people.find((p) => p.uid === u)?.name ?? 'Someone'),
+      mine: (me: string) => uids.includes(me),
+    };
+  });
 }

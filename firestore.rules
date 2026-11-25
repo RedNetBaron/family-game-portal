@@ -102,7 +102,13 @@ service cloud.firestore {
         && request.resource.data.text.size() <= 1000
         && request.resource.data.createdAt == request.time;
       allow delete: if isMember() && resource.data.uid == request.auth.uid;
-      allow update: if false;
+      // Reactions: each member can set or clear only their own one emoji.
+      allow update: if isMember()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+        && request.resource.data.reactions is map
+        && request.resource.data.reactions.diff(resource.data.get('reactions', {})).affectedKeys().hasOnly([request.auth.uid])
+        && (!(request.auth.uid in request.resource.data.reactions)
+            || request.resource.data.reactions[request.auth.uid] in ['❤️', '😂', '👍', '😮', '😢', '🎉']);
     }
 
     function validLetterGrid(d) {
