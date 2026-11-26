@@ -125,7 +125,7 @@ export function DailyWord({ member }: { member: Member }) {
     <section className="dw">
       <header className="lg-head">
         <a href="#/games" className="link">‹ Games</a>
-        <h2>Daily Word</h2>
+        <h2 className="with-icon"><img src="/icons/daily-word.png" alt="" width="40" height="40" />Daily Word</h2>
         <span className="badge">{new Date(`${day}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
       </header>
       {!guesses.length && <p className="hint center-text">Guess today's 5-letter word in 6 tries. Everyone in the family gets the same word, and it changes at midnight Central.</p>}

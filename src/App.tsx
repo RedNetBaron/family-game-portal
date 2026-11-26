@@ -58,7 +58,7 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
           <img src="/logo-badge.png" alt="" width="36" height="36" />
           Family Games
         </button>
-        <button className="link" onClick={signOutMember}>Sign out</button>
+        <ProfileMenu name={member.name} />
       </header>
       <div className="content">
         {gameId ? (
@@ -88,16 +88,37 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
       {logoOpen && <LogoSheet member={member} onClose={() => setLogoOpen(false)} />}
       <nav className="tabs">
         <a className={tab === 'chat' ? 'active' : ''} href="#/chat">
+          <img src="/icons/chat.png" alt="" width="34" height="34" />
           Chat
         </a>
         <a className={tab === 'games' ? 'active' : ''} href="#/games">
+          <img src="/icons/games.png" alt="" width="34" height="34" />
           Games
           {waiting.length > 0 && <span className="tab-count" aria-label={`${waiting.length} waiting on you`}>{waiting.length}</span>}
         </a>
         <a className={tab === 'scores' ? 'active' : ''} href="#/scores">
+          <img src="/icons/scores.png" alt="" width="34" height="34" />
           Scores
         </a>
       </nav>
+    </div>
+  );
+}
+
+function ProfileMenu({ name }: { name: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="profile-menu">
+      <button className="icon-btn" onClick={() => setOpen((o) => !o)} aria-label="Profile" aria-expanded={open}>
+        <img src="/icons/profile.png" alt="" width="36" height="36" />
+      </button>
+      {open && (
+        <div className="profile-pop card">
+          <div className="hint">Signed in as</div>
+          <strong>{name}</strong>
+          <button className="link" onClick={signOutMember}>Sign out</button>
+        </div>
+      )}
     </div>
   );
 }
