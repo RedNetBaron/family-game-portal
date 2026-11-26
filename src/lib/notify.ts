@@ -14,11 +14,11 @@ export type NotifyState =
   | 'off'
   | 'on';
 
-function isIos() {
+export function isIos() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-function isStandalone() {
+export function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 }
 

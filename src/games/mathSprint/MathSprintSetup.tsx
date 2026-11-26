@@ -35,7 +35,7 @@ export function MathSprintSetup({ member }: { member: Member }) {
     <section className="games">
       <header className="lg-head">
         <a href="#/games" className="link">‹ Games</a>
-        <h2>Math Sprint</h2>
+        <h2 className="with-icon"><img src="/icons/math-sprint.png" alt="" width="40" height="40" />Math Sprint</h2>
       </header>
       <article className="card game">
         <h3>New game</h3>

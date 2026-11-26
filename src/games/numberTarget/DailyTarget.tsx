@@ -126,7 +126,7 @@ export function DailyTarget({ member }: { member: Member }) {
     <section className="lg">
       <header className="lg-head">
         <a href="#/games/number-target" className="link">‹ Number Target</a>
-        <h2>Daily Target</h2>
+        <h2 className="with-icon"><img src="/icons/daily-target.png" alt="" width="40" height="40" />Daily Target</h2>
         <span className="badge">{new Date(`${day}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
       </header>
 

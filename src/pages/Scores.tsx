@@ -78,7 +78,7 @@ export function Scores({ member }: { member: Member }) {
 
   return (
     <section className="scores">
-      <h2 className="menu-title">Scoreboard</h2>
+      <h2 className="menu-title with-icon"><img src="/icons/scores.png" alt="" width="40" height="40" />Scoreboard</h2>
       <div className="chips">
         <button className={month === thisMonth ? 'chip on' : 'chip'} onClick={() => setMonth(thisMonth)}>
           {monthName(thisMonth)}

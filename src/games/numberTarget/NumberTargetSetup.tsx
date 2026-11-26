@@ -35,7 +35,7 @@ export function NumberTargetSetup({ member }: { member: Member }) {
     <section className="games">
       <header className="lg-head">
         <a href="#/games" className="link">‹ Games</a>
-        <h2>Number Target</h2>
+        <h2 className="with-icon"><img src="/icons/number-target.png" alt="" width="40" height="40" />Number Target</h2>
       </header>
 
       <a className="card menu-item" href="#/games/daily-target">
