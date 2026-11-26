@@ -645,7 +645,6 @@ button.brand { background: none; border: none; padding: 0; font: inherit; font-w
 
 /* Settings + grid menu */
 .top-actions { display: flex; align-items: center; gap: 0.6rem; }
-.settings-pop { min-width: 210px; gap: 0.5rem; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
 .seg button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 0.45em 0.6em; font-weight: 600; min-height: 40px; }
 .seg button.on { background: linear-gradient(180deg, var(--gold), var(--orange)); color: #1a0f05; border-color: transparent; }
@@ -654,3 +653,14 @@ button.brand { background: none; border: none; padding: 0; font: inherit; font-w
 .game-menu.grid .menu-item small, .game-menu.grid .chev { display: none; }
 .game-menu.grid .menu-icon { width: 76px; height: 76px; }
 .game-menu.grid .menu-item strong { font-size: 0.92rem; line-height: 1.2; }
+
+/* Settings sheet */
+.sheet.settings { text-align: left; gap: 0; }
+.sheet.settings > h3 { margin: 0 0 0.6rem; color: var(--gold); }
+.set-row { display: grid; gap: 0.5rem; padding: 0.9rem 0; border-top: 1px solid var(--line); }
+.set-row h4 { margin: 0; font-size: 1rem; }
+.set-row .hint { margin: 0; }
+.set-row .primary, .set-row .pill { justify-self: start; }
+.pill { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 0.45em 1em; font-weight: 600; min-height: 40px; }
+.nudge { display: block; width: 100%; text-align: left; background: var(--surface); border: 1px dashed var(--gold); border-radius: var(--radius); color: var(--muted); padding: 0.7rem 0.9rem; margin-bottom: 1rem; font-size: 0.9rem; }
+.nudge span { color: var(--gold); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }

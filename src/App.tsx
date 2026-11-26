@@ -3,7 +3,7 @@ import { joinInProgress, signOutMember } from './lib/account';
 import { useHash } from './lib/useHash';
 import { useMember, type Member } from './lib/useMember';
 import { useWaiting } from './lib/useWaiting';
-import { useMenuView } from './lib/useMenuView';
+import { SettingsButton } from './pages/SettingsSheet';
 import { Chat } from './pages/Chat';
 import { CategoryDashSetup } from './games/categoryDash/CategoryDashSetup';
 import { GameScreen } from './games/GameScreen';
@@ -60,7 +60,7 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
           Family Games
         </button>
         <div className="top-actions">
-          <SettingsMenu />
+          <SettingsButton uid={member.uid} />
           <ProfileMenu name={member.name} />
         </div>
       </header>
@@ -127,33 +127,3 @@ function ProfileMenu({ name }: { name: string }) {
   );
 }
 
-function SettingsMenu() {
-  const [open, setOpen] = useState(false);
-  const [view, setView] = useMenuView();
-  return (
-    <div className="profile-menu">
-      <button className="icon-btn" onClick={() => setOpen((o) => !o)} aria-label="Settings" aria-expanded={open}>
-        <img src="/icons/settings.png" alt="" width="36" height="36" />
-      </button>
-      {open && (
-        <div className="profile-pop card settings-pop">
-          <strong>Settings</strong>
-          <div className="hint">Games menu</div>
-          <div className="seg" role="radiogroup" aria-label="Games menu">
-            {(['list', 'grid'] as const).map((v) => (
-              <button
-                key={v}
-                role="radio"
-                aria-checked={view === v}
-                className={view === v ? 'on' : ''}
-                onClick={() => setView(v)}
-              >
-                {v === 'list' ? '☰ List' : '▦ Grid'}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}

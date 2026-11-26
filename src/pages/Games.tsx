@@ -1,5 +1,6 @@
-import { InstallButton } from './InstallButton';
-import { NotifyCard } from './NotifyCard';
+import { useEffect, useState } from 'react';
+import { notifyState } from '../lib/notify';
+import { openSettings } from './SettingsSheet';
 import type { Waiting } from '../lib/useWaiting';
 import { GAME_NAMES } from '../lib/useWaiting';
 import { useMenuView } from '../lib/useMenuView';
@@ -49,7 +50,7 @@ const games: { name: string; blurb: string; href: string | null; icon: string }[
   },
 ];
 
-export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
+export function Games({ waiting }: { waiting: Waiting[]; uid: string }) {
   const [view] = useMenuView();
   return (
     <section className="games">
@@ -71,8 +72,7 @@ export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
           </ul>
         </div>
       )}
-      <InstallButton />
-      <NotifyCard uid={uid} />
+      <NotifyNudge />
       <h2 className="menu-title">Pick a game</h2>
       <ul className={`game-menu ${view}`}>
         {games.map((g) => (
@@ -100,5 +100,19 @@ export function Games({ waiting, uid }: { waiting: Waiting[]; uid: string }) {
         ))}
       </ul>
     </section>
+  );
+}
+
+/** One-line reminder while notifications are off; the switch itself is in Settings. */
+function NotifyNudge() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    notifyState().then((s) => setShow(s === 'off' || s === 'ios-install'));
+  }, []);
+  if (!show) return null;
+  return (
+    <button className="nudge" onClick={openSettings}>
+      🔔 Want a ping when it's your turn? <span>Turn on in Settings</span>
+    </button>
   );
 }
