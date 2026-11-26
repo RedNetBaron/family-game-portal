@@ -642,3 +642,15 @@ button.brand { background: none; border: none; padding: 0; font: inherit; font-w
 .profile-menu { position: relative; }
 .profile-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; display: grid; gap: 0.2rem; min-width: 180px; padding: 0.9rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
 .profile-pop .link { justify-self: start; padding: 0.4em 0 0; }
+
+/* Settings + grid menu */
+.top-actions { display: flex; align-items: center; gap: 0.6rem; }
+.settings-pop { min-width: 210px; gap: 0.5rem; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+.seg button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 0.45em 0.6em; font-weight: 600; min-height: 40px; }
+.seg button.on { background: linear-gradient(180deg, var(--gold), var(--orange)); color: #1a0f05; border-color: transparent; }
+.game-menu.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+.game-menu.grid .menu-item { flex-direction: column; justify-content: flex-start; text-align: center; min-height: 0; padding: 0.9rem 0.3rem 0.8rem; gap: 0.5rem; height: 100%; }
+.game-menu.grid .menu-item small, .game-menu.grid .chev { display: none; }
+.game-menu.grid .menu-icon { width: 76px; height: 76px; }
+.game-menu.grid .menu-item strong { font-size: 0.92rem; line-height: 1.2; }

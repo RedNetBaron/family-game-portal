@@ -3,6 +3,7 @@ import { joinInProgress, signOutMember } from './lib/account';
 import { useHash } from './lib/useHash';
 import { useMember, type Member } from './lib/useMember';
 import { useWaiting } from './lib/useWaiting';
+import { useMenuView } from './lib/useMenuView';
 import { Chat } from './pages/Chat';
 import { CategoryDashSetup } from './games/categoryDash/CategoryDashSetup';
 import { GameScreen } from './games/GameScreen';
@@ -58,7 +59,10 @@ function Shell({ member, hash }: { member: Member; hash: string }) {
           <img src="/logo-badge.png" alt="" width="36" height="36" />
           Family Games
         </button>
-        <ProfileMenu name={member.name} />
+        <div className="top-actions">
+          <SettingsMenu />
+          <ProfileMenu name={member.name} />
+        </div>
       </header>
       <div className="content">
         {gameId ? (
@@ -117,6 +121,37 @@ function ProfileMenu({ name }: { name: string }) {
           <div className="hint">Signed in as</div>
           <strong>{name}</strong>
           <button className="link" onClick={signOutMember}>Sign out</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SettingsMenu() {
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useMenuView();
+  return (
+    <div className="profile-menu">
+      <button className="icon-btn" onClick={() => setOpen((o) => !o)} aria-label="Settings" aria-expanded={open}>
+        <img src="/icons/settings.png" alt="" width="36" height="36" />
+      </button>
+      {open && (
+        <div className="profile-pop card settings-pop">
+          <strong>Settings</strong>
+          <div className="hint">Games menu</div>
+          <div className="seg" role="radiogroup" aria-label="Games menu">
+            {(['list', 'grid'] as const).map((v) => (
+              <button
+                key={v}
+                role="radio"
+                aria-checked={view === v}
+                className={view === v ? 'on' : ''}
+                onClick={() => setView(v)}
+              >
+                {v === 'list' ? '☰ List' : '▦ Grid'}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
