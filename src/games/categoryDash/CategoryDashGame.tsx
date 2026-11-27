@@ -190,7 +190,7 @@ function Results({ game, member }: { game: CategoryGame; member: Member }) {
       {others > 0 && (
         <p className="hint">
           Think an answer doesn't fit its category? Tap 👎 on it. If most of the other players agree, it scores 0.
-          Two-word answers where both words start with the letter score 2.
+          Multi-word answers score a point for each word when every main word starts with the letter (“and”, “of” and similar words are skipped).
           Crossed-out “match” answers were given by more than one person.
         </p>
       )}

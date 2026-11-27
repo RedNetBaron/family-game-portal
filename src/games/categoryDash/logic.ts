@@ -17,20 +17,23 @@ export function startsWithLetter(answer: string, letter: string): boolean {
   return n.length > 0 && n[0] === letter.toLowerCase();
 }
 
+/** Small connecting words that don't count for or against a multi-word answer. */
+const FILLER = new Set(['a', 'an', 'the', 'and', 'n', 'of', 'or', 'in', 'on', 'at', 'to', 'for', 'with', 'by']);
+
 /**
- * Points for an accepted answer: 2 when it is two or more words and every word starts with the letter
- * (like "Bugs Bunny" for B), otherwise 1. A leading "the/a/an" is ignored, as in startsWithLetter.
+ * Points for an accepted answer: 1 point for each main word when every main word starts with the letter
+ * ("Bugs Bunny" = 2, "Bed Bath and Beyond" = 3 for B). Small words like "and" or "of" are skipped.
+ * If any main word starts with another letter ("Bob Dylan"), the answer scores 1.
  */
 export function answerPoints(answer: string, letter: string): number {
   const words = answer
     .toLowerCase()
-    .trim()
-    .replace(/^(the|a|an)\s+/, '')
+    .replace(/&/g, ' and ')
     .split(/\s+/)
     .map((w) => w.replace(/[^a-z0-9]/g, ''))
-    .filter(Boolean);
+    .filter((w) => w && !FILLER.has(w));
   const l = letter.toLowerCase();
-  return words.length >= 2 && words.every((w) => w[0] === l) ? 2 : 1;
+  return words.length >= 2 && words.every((w) => w[0] === l) ? words.length : 1;
 }
 
 export type AnswerStatus = 'ok' | 'blank' | 'wrong-letter' | 'duplicate' | 'rejected';

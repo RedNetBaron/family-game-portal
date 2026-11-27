@@ -37,8 +37,8 @@ export function CategoryDashSetup({ member }: { member: Member }) {
         <h3>New game</h3>
         <p>
           You get one random letter and a list of categories. Think of something for each category that starts with
-          that letter. Answers nobody else gave score a point, or 2 points if both words of a two-word answer start
-          with the letter, and the family can vote out answers that don't fit.
+          that letter. Answers nobody else gave score a point. If every main word of an answer starts with the letter, it
+          scores a point per word (“Bed Bath and Beyond” is 3 for B), and the family can vote out answers that don't fit.
         </p>
         <fieldset className="choice">
           <legend>Categories</legend>

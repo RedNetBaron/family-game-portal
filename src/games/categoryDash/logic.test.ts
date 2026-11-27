@@ -33,6 +33,10 @@ check('totals', JSON.stringify(standings.map((s) => [s.uid, s.score])) === '[["c
 check('two B words = 2', answerPoints('Bugs Bunny', 'B') === 2);
 check('article ignored', answerPoints('The Big Bang', 'b') === 2);
 check('one B word of two = 1', answerPoints('Bob Dylan', 'B') === 1);
+check('Bed Bath and Beyond = 3', answerPoints('Bed Bath and Beyond', 'B') === 3);
+check('Big Bad Bob = 3', answerPoints('Big Bad Bob', 'B') === 3);
+check('ampersand skipped', answerPoints('Bed Bath & Beyond', 'B') === 3);
+check('Bank of Boston = 2', answerPoints('Bank of Boston', 'B') === 2);
 check('one word = 1', answerPoints('Boston', 'B') === 1);
 const two = scoreGame('B', 1, [
   { uid: 'a', name: 'A', answers: ['Bugs Bunny'] },
