@@ -190,6 +190,7 @@ function Results({ game, member }: { game: CategoryGame; member: Member }) {
       {others > 0 && (
         <p className="hint">
           Think an answer doesn't fit its category? Tap 👎 on it. If most of the other players agree, it scores 0.
+          Two-word answers where both words start with the letter score 2.
           Crossed-out “match” answers were given by more than one person.
         </p>
       )}
@@ -207,7 +208,7 @@ function Results({ game, member }: { game: CategoryGame; member: Member }) {
                 <li key={a.uid} className={`cd-answer ${a.status}`}>
                   <span className="who">{a.name}</span>
                   <span className="ans">{a.answer || '—'}</span>
-                  <span className="pts">{STATUS_LABEL[a.status]}</span>
+                  <span className="pts">{a.status === 'ok' ? `+${a.points}` : STATUS_LABEL[a.status]}</span>
                   {canVote && (
                     <button
                       className={mine[key] ? 'vote on' : 'vote'}
