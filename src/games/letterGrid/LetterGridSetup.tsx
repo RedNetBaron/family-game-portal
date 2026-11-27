@@ -2,12 +2,12 @@ import { useCallback, useState } from 'react';
 import type { Member } from '../../lib/useMember';
 import { ModeButtons, RecentGames, TimerChoice } from '../common/Phases';
 import { createGame, type Game, type Mode } from './api';
-import { formatDuration, SIZES, TIMER_PRESETS } from './logic';
+import { DEFAULT_SIZE, formatDuration, SIZES, TIMER_PRESETS } from './logic';
 
 export function LetterGridSetup({ member }: { member: Member }) {
   const [busy, setBusy] = useState<Mode | null>(null);
   const [error, setError] = useState('');
-  const [size, setSize] = useState(4);
+  const [size, setSize] = useState<number>(DEFAULT_SIZE);
   const [seconds, setSeconds] = useState<number | null>(180);
   const onTimer = useCallback((s: number | null) => setSeconds(s), []);
 

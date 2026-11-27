@@ -1,6 +1,7 @@
 // Letter Grid: pure game logic (no Firebase, no React).
 
-export const SIZES = [4, 5, 6] as const;
+export const SIZES = [5, 6, 7] as const;
+export const DEFAULT_SIZE = 5;
 export const TIMER_PRESETS = [60, 180, 300];
 export const MIN_SECONDS = 30;
 export const MAX_SECONDS = 15 * 60;
@@ -36,7 +37,7 @@ function pick(rand: () => number): string {
   return 'E';
 }
 
-export function makeGrid(size = 4, rand: () => number = Math.random): string[] {
+export function makeGrid(size = DEFAULT_SIZE, rand: () => number = Math.random): string[] {
   const n = size * size;
   for (;;) {
     const grid = Array.from({ length: n }, () => pick(rand));
