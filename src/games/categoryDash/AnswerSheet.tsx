@@ -52,7 +52,7 @@ export function AnswerSheet({ letter, categories, deadline, initial, onChange, o
           </span>
         </div>
       </div>
-      <p className="hint">Every answer must start with <strong>{letter}</strong>. Answers someone else also gives score 0.</p>
+      <p className="hint">Every answer must start with <strong>{letter}</strong>. If every main word starts with it, each word scores a point. Answers someone else also gives score 0.</p>
       <ol className="cd-list">
         {categories.map((c, i) => (
           <li key={i}>

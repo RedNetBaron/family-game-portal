@@ -1,4 +1,4 @@
-import { normalize, scoreGame, startsWithLetter } from './logic';
+import { answerPoints, normalize, scoreGame, startsWithLetter } from './logic';
 import { CATEGORIES, pickCategories } from './categories';
 
 let failures = 0;
@@ -29,5 +29,21 @@ check('minority reject kept', byCategory[3][1].status === 'ok');
 check('wrong letter', byCategory[2][1].status === 'wrong-letter');
 check('blank', byCategory[3][0].status === 'blank');
 check('totals', JSON.stringify(standings.map((s) => [s.uid, s.score])) === '[["c",4],["b",2],["a",1]]');
+
+check('two B words = 2', answerPoints('Bugs Bunny', 'B') === 2);
+check('article ignored', answerPoints('The Big Bang', 'b') === 2);
+check('one B word of two = 1', answerPoints('Bob Dylan', 'B') === 1);
+check('Bed Bath and Beyond = 3', answerPoints('Bed Bath and Beyond', 'B') === 3);
+check('Big Bad Bob = 3', answerPoints('Big Bad Bob', 'B') === 3);
+check('ampersand skipped', answerPoints('Bed Bath & Beyond', 'B') === 3);
+check('Bank of Boston = 2', answerPoints('Bank of Boston', 'B') === 2);
+check('one word = 1', answerPoints('Boston', 'B') === 1);
+const two = scoreGame('B', 1, [
+  { uid: 'a', name: 'A', answers: ['Bugs Bunny'] },
+  { uid: 'b', name: 'B', answers: ['Big Ben'] },
+  { uid: 'c', name: 'C', answers: ['big  ben'] },
+], {});
+check('two-word answer scores 2', two.byCategory[0][0].points === 2);
+check('two-word duplicate still 0', two.byCategory[0][1].points === 0 && two.byCategory[0][2].status === 'duplicate');
 
 if (failures) process.exit(1);
