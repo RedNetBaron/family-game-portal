@@ -114,7 +114,7 @@ service cloud.firestore {
     function validLetterGrid(d) {
       return d.type == 'letterGrid'
         && d.grid is list
-        && d['size'] in [4, 5, 6]
+        && d['size'] in [5, 6, 7]
         && d.grid.size() == d['size'] * d['size'];
     }
 
